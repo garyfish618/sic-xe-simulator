@@ -13,16 +13,21 @@ def help():
 
 
 class Console:
+
+    def __init__(self):
+        self.isExtended = True # HARD CODE TODO: REMOVE IN ARCHITECTURE INTEGRATION
+
     def command_handler(self, command = "NA"):
         commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit"]
+        line = command.split(' ')
 
-        if command in commands:
-            getattr(Console(), command)()
+        if line[0] in commands:
+            getattr(Console(), line[0])(line)
 
         else:
             print("Invalid command")
 
-    def help(self):
+    def help(self, args):
         print("help\t\t\tView available commands\n" + 
               "credits\t\t\tView credits\n" + 
               "parse\t\t\tBegin parsing and syntax checking\n" + 
@@ -36,34 +41,49 @@ class Console:
               "exit\t\t\tExits the simulator\n"
               )
     
-    def credits(self):
+    def credits(self, args):
+        print("Rolling Credits")
+        print(args)
+
+    def parse(self, args):
+        print("Starting parser")
+
+    def viewmem(self, args):
+
+        if len(args) != 2:
+            print("Usage: viewmem [address]")
+            return
+        
+        address = args[1]
+        
+        if self.isExtended and len(address) == 5:
+            print("Printing memory on extended address")
+        
+        elif not self.isExtended and len(address) == 4:
+            print("Printing memory on simple address")
+
+        else:
+            print("Please provide an address in the correct format")     
+
+    def viewreg(self, args):
         print("hi")
 
-    def parse(self):
+    def start(self, args):
+        print("Starting interpreter")
+
+    def next(self, args):
+        print("Next line")
+
+    def changereg(self, args):
         print("hi")
 
-    def viewmem(self):
+    def changemem(self, args):
         print("hi")
 
-    def viewreg(self):
-        print("hi")
+    def stop(self, args):
+        print("Stopping interpreter")
 
-    def start(self):
-        print("hi")
-
-    def next(self):
-        print("hi")
-
-    def changereg(self):
-        print("hi")
-
-    def changemem(self):
-        print("hi")
-
-    def stop(self):
-        print("hi")
-
-    def exit(self):
+    def exit(self, args):
         sys.exit()
 
 
