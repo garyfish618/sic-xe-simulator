@@ -16,7 +16,7 @@ class Memory:
         output = []
         for byte in self.memory:
             output.append(byte)
-            if len(output) % 8 == 0: #print memory in groups of 8 bytes
+            if len(output) % 16 == 0: #print memory in groups of 8 bytes
                 print(output)
                 output = []
         if len(output) > 0:
@@ -56,5 +56,5 @@ class Registery:
     def viewRegisters(self):
         for register in self.registers:
             print(register)
-x = Registery(True)
-x.viewRegisters()
+# x = Registery(True)
+# x.viewRegisters()
