@@ -1,5 +1,10 @@
 import sys
 
+SIZE_OF_BYTE = 2 #Characters
+VALID_OPTIONS_SIMPLE = ["A", "X", "L", "PC", "SW"] #NOTE How should we handle a user trying to edit the PC register?
+VALID_OPTIONS_EXTENDED = ["A", "X", "L", "PC", "SW","B", "S", "T", "F"] #NOTE How should we handle a user trying to edit the PC register?
+
+
 def clear_console():
     print("\n" * 100)
 
@@ -43,7 +48,6 @@ class Console:
     
     def credits(self, args):
         print("Rolling Credits")
-        print(args)
 
     def parse(self, args):
         print("Starting parser")
@@ -56,17 +60,31 @@ class Console:
         
         address = args[1]
         
-        if self.isExtended and len(address) == 5:
+        if self.isExtended and len(address) == SIZE_OF_BYTE * 2.5:
             print("Printing memory on extended address")
         
-        elif not self.isExtended and len(address) == 4:
+        elif not self.isExtended and len(address) == SIZE_OF_BYTE * 2:
             print("Printing memory on simple address")
 
         else:
             print("Please provide an address in the correct format")     
 
     def viewreg(self, args):
-        print("hi")
+
+        if len(args) != 2:
+            print("Usage: viewreg [register]")
+            return
+
+        reg_choice = args[1]
+        if self.isExtended and reg_choice in VALID_OPTIONS_EXTENDED:
+            print("Printing register", reg_choice)
+        
+        elif not self.isExtended and reg_choice in VALID_OPTIONS_SIMPLE:
+            print("Printing register", reg_choice)
+
+        else:
+            print("Please provide a valid register")     
+
 
     def start(self, args):
         print("Starting interpreter")
@@ -75,15 +93,48 @@ class Console:
         print("Next line")
 
     def changereg(self, args):
-        print("hi")
+        if len(args) != 3:
+            print("Usage: changereg [register] [value]")
+            return
+        
+        reg_choice = args[1]
+        value = args[2]
+
+        if(len(value) != SIZE_OF_BYTE * 2):
+            print("Please provide a valid value")
+            return
+        
+        if self.isExtended and reg_choice in VALID_OPTIONS_EXTENDED:
+            print("Adjusting register", reg_choice, "to", value )
+        
+        elif not self.isExtended and reg_choice in VALID_OPTIONS_SIMPLE:
+            print("Adjusting register", reg_choice, "to", value)
+
+        else:
+            print("Please provide a valid register")     
+
+
+        
 
     def changemem(self, args):
-        print("hi")
+        if len(args) != 3:
+            print("Usage: changemem [address] [bytevalue]")
+            return
+
+        address = args[1]
+        value = args[2]
+
+        if(len(value) != SIZE_OF_BYTE):
+            print("Please provide a valid value")
+            return
+        
+        print("Changing byte at", address, "to", value )
 
     def stop(self, args):
         print("Stopping interpreter")
 
     def exit(self, args):
+        print("Bye :)")
         sys.exit()
 
 
