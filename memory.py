@@ -9,7 +9,7 @@ class Memory:
     def getmemory(self):
         return self.memory
 
-    def setMemory(self, hex, mem):
+    def setMemory(self, hex, byte):
         dec = int (hex, 16)
         
         if isSimple:
@@ -19,7 +19,7 @@ class Memory:
             if dec < 0 or dec > 128000
             return False
         
-        mem = getmemory(dec)
+        byte = getmemory(dec)
         return  True
         pass  #TODO
 
@@ -62,17 +62,10 @@ class Registery:
         return self.registers
 
     def setRegister(self, reg, val):
-        #if isSimple:
-            #if reg != registers
-                #return False
-                
-        #else:
-            #for i in registers
-                #if reg == registers
-                    #reg = val
-                    #return True
-        reg = val
-        pass #TODO
+        if reg in self.registers.keys():
+            self.registers[reg] = val
+            return True
+        return False
 
     def viewRegisters(self):
         for register in self.registers:
