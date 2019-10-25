@@ -9,7 +9,18 @@ class Memory:
     def getmemory(self):
         return self.memory
 
-    def setMemory(self):
+    def setMemory(self, hex, mem):
+        dec = int (hex, 16)
+        
+        if isSimple:
+            if dec < 0 or dec > 4000
+            return False
+        else:
+            if dec < 0 or dec > 128000
+            return False
+        
+        mem = getmemory(dec)
+        return  True
         pass  #TODO
 
     def viewmemory(self):
@@ -50,7 +61,17 @@ class Registery:
     def getRegisters(self):
         return self.registers
 
-    def setRegister(self):
+    def setRegister(self, reg, val):
+        #if isSimple:
+            #if reg != registers
+                #return False
+                
+        #else:
+            #for i in registers
+                #if reg == registers
+                    #reg = val
+                    #return True
+        reg = val
         pass #TODO
 
     def viewRegisters(self):
