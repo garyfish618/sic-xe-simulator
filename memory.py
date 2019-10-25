@@ -21,7 +21,6 @@ class Memory:
         
         byte = getmemory(dec)
         return  True
-        pass  #TODO
 
     def viewmemory(self):
         output = []
