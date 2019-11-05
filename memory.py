@@ -6,13 +6,23 @@ class Memory:
         else:
             self.memory = [None] * 128000    #size in bytes
 
-    def getmemory(self):
+    def get_memory(self):
         return self.memory
 
-    def setMemory(self):
-        pass  #TODO
+    def set_memory(self, hex, byte):
+        dec = int (hex, 16)
+        
+        if isSimple:
+            if dec < 0 or dec > 4000:
+            return False
+        else:
+            if dec < 0 or dec > 128000:
+            return False
+        
+        byte = get_memory(dec)
+        return  True
 
-    def viewmemory(self):
+    def view_memory(self):
         output = []
         for byte in self.memory:
             output.append(byte)
@@ -47,13 +57,16 @@ class Registery:
                 'F' : 0     #Floating-point accumulator (48 bits)
             }
 
-    def getRegisters(self):
+    def get_registers(self):
         return self.registers
 
-    def setRegister(self):
-        pass #TODO
+    def set_register(self, reg, val):
+        if reg in self.registers.keys():
+            self.registers[reg] = val
+            return True
+        return False
 
-    def viewRegisters(self):
+    def view_registers(self):
         for register in self.registers:
             print(register)
 # x = Registery(True)
