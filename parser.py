@@ -1,7 +1,6 @@
 import sys
 import re
 
-
 class Instruction:
 
     def __init__(self, label, name, args, address):

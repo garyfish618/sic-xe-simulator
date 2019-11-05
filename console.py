@@ -16,6 +16,7 @@ class Console:
 
     def __init__(self):
         self.isExtended = True # HARD CODE TODO: REMOVE IN ARCHITECTURE INTEGRATION
+        self.instruction_array = {}
 
     def command_handler(self, command = "NA"):
         commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit"]
@@ -49,22 +50,12 @@ class Console:
             print("Usage: parse [filename]")
             return
         
-        instruction_array = parser.read_file(args[1])
+        parser.read_file()
 
         if instruction_array is None:
             print("Parsing unsuccesful")
 
-        print("Label = " + instruction_array[0].label)
-        print("Name = " + instruction_array[0].name)
-
-        print("Arguments:")
-        for arg in instruction_array[0].args:
-            print(arg)
-        
-
-
     def viewmem(self, args):
-
         if len(args) != 2:
             print("Usage: viewmem [address]")
             return
@@ -96,9 +87,9 @@ class Console:
         else:
             print("Please provide a valid register")     
 
-
     def start(self, args):
-        print("Starting interpreter")
+        interpreter = Interpreter(self.instruction_array, True) #TODO remove hardcoded True
+        
 
     def next(self, args):
         print("Next line")
@@ -123,9 +114,6 @@ class Console:
 
         else:
             print("Please provide a valid register")     
-
-
-        
 
     def changemem(self, args):
         if len(args) != 3:
@@ -160,6 +148,5 @@ def Main():
 
     while True:
         prompt.command_handler(get_input())
-
 
 Main()

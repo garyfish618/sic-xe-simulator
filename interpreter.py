@@ -20,10 +20,13 @@ class Interpreter:
                 instruction.address = next_address
             
             if is_simple:
-                next_address = hex(int(next_address, 16) + 3).zfill(4)
+                #Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4 characters
+                next_address = hex(int(next_address, 16) + 3).strip("0x").upper().zfill(4) 
+                print(next_address)
 
     def execute_next_instruction(self):
-        next_line = self.instructions[self.instruction_pointer++]
+        next_line = self.instructions[self.instruction_pointer]
+        self.instruction_pointer += 1
         instruction_name = next_line.name
         label = next_line.label
         arguments = next_line.args
@@ -34,10 +37,6 @@ class Interpreter:
             raise Exception("Invalid instruction name on line") #TODO provide line number once implemented in parser
 
         token_utilizer(instruction_name, arguments, label)
-
-        
-
-
 
     def determine_instruction(self, instruction_name):
         instruction_set = {}
@@ -77,44 +76,43 @@ class Interpreter:
 
         return instruction_set.get(instruction_name, -1) #Returns -1 if instruction was not found
     
-    def token_utilizer(self, instruction_token, arguments, label):
+    #def token_utilizer(self, instruction_token, arguments, label):
 
-        if (self.isSimple):
-            if instruction_token == 1: #ADD
-                print("Do ADD")
+        # if (self.isSimple):
+        #     if instruction_token == 1: #ADD
+        #         print("Do ADD")
             
-            elif instruction_token == 2: #AND
+        #     elif instruction_token == 2: #AND
                 
-            elif instruction_token == 3: #COMP
-                #Do a SUB between m1 and m2
-                #Store that value in register
-                result = 
+        #     elif instruction_token == 3: #COMP
+        #         #Do a SUB between m1 and m2
+        #         #Store that value in register
+        #         result = 
 
-            elif instruction_token == 4: #DIV
+        #     elif instruction_token == 4: #DIV
 
-            elif instruction_token == 5: #J
+        #     elif instruction_token == 5: #J
 
                 
 
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
 
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
 
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
 
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
             
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
             
-            elif instruction_token == 1: #ADD
+        #     elif instruction_token == 1: #ADD
 
 
 #Helper methods
 
 def hex2int(val, bits):
-    """compute the 2's complement of int value val"""
-    if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
-        val = val - (1 << bits)        # compute negative value
+    if (val & (1 << (bits - 1))) != 0: 
+        val = val - (1 << bits)
     return val
 
 def int2hex(number, bits):
