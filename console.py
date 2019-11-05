@@ -1,4 +1,4 @@
-import sys
+import sys, parser
 
 SIZE_OF_BYTE = 2 #Characters
 VALID_OPTIONS_SIMPLE = ["A", "X", "L", "PC", "SW"] #NOTE How should we handle a user trying to edit the PC register?
@@ -11,11 +11,6 @@ def clear_console():
 def get_input():
     print('>', end =" ")
     return input()
-
-def help():
-    print("hi")
-
-
 
 class Console:
 
@@ -50,7 +45,23 @@ class Console:
         print("Rolling Credits")
 
     def parse(self, args):
-        print("Starting parser")
+        if len(args) != 2:
+            print("Usage: parse [filename]")
+            return
+        
+        instruction_array = parser.read_file(args[1])
+
+        if instruction_array is None:
+            print("Parsing unsuccesful")
+
+        print("Label = " + instruction_array[0].label)
+        print("Name = " + instruction_array[0].name)
+
+        print("Arguments:")
+        for arg in instruction_array[0].args:
+            print(arg)
+        
+
 
     def viewmem(self, args):
 
