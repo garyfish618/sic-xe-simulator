@@ -19,7 +19,7 @@ class Memory:
             if dec < 0 or dec > 128000:
             return False
         
-        byte = get_memory(dec)
+        self.memory[dec] = byte
         return  True
 
     def view_memory(self):
