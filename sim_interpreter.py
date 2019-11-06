@@ -43,7 +43,7 @@ class Interpreter:
                     for i in range(0,len(value),2):
                         byte_to_set = value[i] + value[i+1]
                         self.memory_set.set_memory(self.next_address, byte_to_set)
-                        self.next_address = int2hex(hex2int(self.next_address, 16) + 1,16).zfill(4)
+                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
 
             else:
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
@@ -68,7 +68,7 @@ class Interpreter:
         if instruction_token == -1:
             raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
 
-        self.token_utilizer(instruction_token, arguments, label)
+        self.token_utilizer(instruction_token, arguments, label, instruction_name)
 
     def determine_instruction(self, instruction_name):
         instruction_set = {}
@@ -108,7 +108,7 @@ class Interpreter:
 
         return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
 
-    def token_utilizer(self, instruction_token, arguments, label):
+    def token_utilizer(self, instruction_token, arguments, label, name):
 
         if (self.is_simple):
 
@@ -120,13 +120,13 @@ class Interpreter:
                 #ADD method if there is register X involved
                 if arguments[1] == 'X':
                     value_of_X = self.registers.get_register('X')
-                    address = add_hex(value_of_X, instr_line.address)
+                    address = add_hex(value_of_X, instr_line.address.zfill(6))
                     
                     memory_string = ""
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
 
-                    memory_string.zfill(6)
+                    memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
                     value_of_A = add_hex(value_of_A, memory_string)
                     self.registers.set_register('A', value_of_A)
@@ -138,7 +138,7 @@ class Interpreter:
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
 
-                    memory_string.zfill(6)
+                    memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
                     value_of_A = add_hex(memory_string, value_of_A)
                     self.registers.set_register('A', value_of_A)
@@ -160,7 +160,7 @@ class Interpreter:
             elif instruction_token == 9: #JSUB
                 pass
 
-            elif instruction_token == 10: #LDA
+            elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
                 target_instr = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(target_instr)
                 value = ""
@@ -169,14 +169,9 @@ class Interpreter:
                 for i in range(size_of_val):
                     value = value + self.memory_set.get_memory(address)
                     address = int2hex(hex2int(address,16) + 1, 16)
-                value = value.zfill(6)
-                self.registers.set_register('A', value)
+                self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
-                pass
-            elif instruction_token == 12: #LDL
-                pass
-            elif instruction_token == 13: #LDX
                 pass
             elif instruction_token == 14: #MUL
                 pass
@@ -240,7 +235,7 @@ class Interpreter:
 
 
 def hex2int(hex_val, bits):
-    value = 0
+    value = int(hex_val,16)
     if (int(hex_val,16) & (1 << (bits - 1))) != 0:
         value = int(hex_val,16) - (1 << bits)
     return value
@@ -255,7 +250,12 @@ def ascii2hex(val):
     return hex(val)[2:]
 
 def add_hex(x, y):
-    return int2hex(hex2int(x, len(x) * 4) + hex2int(y, len(y) * 4))
+    #Adds two hex numbers - NOTE both numbers must have same number of bits 
+    size = 0
+    if len(x) != len(y):
+        raise Exception("Illegal add_hex")
+
+    return int2hex(hex2int(x, len(x) * 4) + hex2int(y, len(y) * 4),len(x) * 4)
 
 
 def sub_hex(x, y):

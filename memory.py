@@ -21,7 +21,6 @@ class Memory:
 
     def set_memory(self, address, byte):
         dec = hex2int(address, 16)
-        
         if self.isSimple:
             if dec < 0 or dec > 4000:
                 return False
@@ -82,8 +81,19 @@ class Registery:
             return self.registers.get(reg)
 
     def set_register(self, reg, val):
+        print(val)
         if reg in self.registers.keys():
-            self.registers[reg] = val
+            val_length = 6 - len(val)
+            register = self.registers[reg]
+            new_val = ""
+
+            for i in range(val_length): # Part of register that we are keeping
+                new_val += register[i]
+
+            for i in range(len(val)): # Right-most values to change
+                new_val += val[i]
+            
+            self.registers[reg] = new_val
             return True
         return False
 
@@ -93,7 +103,7 @@ class Registery:
 
 
 def hex2int(hex_val, bits):
-    value = 0
+    value = int(hex_val,16)
     if (int(hex_val,16) & (1 << (bits - 1))) != 0:
         value = int(hex_val,16) - (1 << bits)
     return value
