@@ -21,7 +21,6 @@ class Memory:
 
     def set_memory(self, address, byte):
         dec = hex2int(address, 16)
-        
         if self.isSimple:
             if dec < 0 or dec > 4000:
                 return False
@@ -82,6 +81,13 @@ class Registery:
             return self.registers.get(reg)
 
     def set_register(self, reg, val):
+        #Padding
+        if len(val) != 6:
+            val = val.zfill(6)
+            #NOTE Only works with positive #'s. If negative, programmer needs to fill with F's
+
+        #TODO Add padding for a negative value (If negative, need to fill with F's)
+
         if reg in self.registers.keys():
             self.registers[reg] = val
             return True
@@ -93,7 +99,7 @@ class Registery:
 
 
 def hex2int(hex_val, bits):
-    value = 0
+    value = int(hex_val,16)
     if (int(hex_val,16) & (1 << (bits - 1))) != 0:
         value = int(hex_val,16) - (1 << bits)
     return value
