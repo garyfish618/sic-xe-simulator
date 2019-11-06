@@ -1,6 +1,7 @@
 class Memory: 
     # isSimple = True    #False = SIC/XE
     def __init__(self, isSimple):
+        self.isSimple = isSimple
         if isSimple:
             self.memory = [None] * 4000      #size in bytes
             for i in range(4000):
@@ -13,7 +14,7 @@ class Memory:
     def get_memory(self, address):
         dec = hex2int(address,16)
 
-        if isSimple:
+        if self.isSimple:
             if dec < 0 or dec > 4000:
                 return False
             return self.memory[dec]
@@ -21,7 +22,7 @@ class Memory:
     def set_memory(self, address, byte):
         dec = hex2int(address, 16)
         
-        if isSimple:
+        if self.isSimple:
             if dec < 0 or dec > 4000:
                 return False
         else:
@@ -91,10 +92,11 @@ class Registery:
             print(register)
 
 
-def hex2int(val, bits):
-    if (val & (1 << (bits - 1))) != 0:
-        val = val - (1 << bits)
-    return val
+def hex2int(hex_val, bits):
+    value = 0
+    if (int(hex_val,16) & (1 << (bits - 1))) != 0:
+        value = int(hex_val,16) - (1 << bits)
+    return value
 
 def int2hex(number, bits):
     if number < 0:

@@ -11,15 +11,19 @@ class Interpreter:
         self.instruction_pointer = 0
         self.memory_set = memory
         self.registers = registers
+        self.next_address = "0000"
 
     def assign_address(self):
-        next_address = "0000"
        
 
         for instruction in self.instructions:
             if instruction.name == "START":
-                next_address = instruction.args[0]
+                self.next_address = instruction.args[0]
                 continue
+
+            instruction.address = self.next_address
+
+            print("DEBUG: " + "Instruction: " + instruction.name + " Address: " + instruction.address)
 
             #If directive - Leave directive assignment to directives module
             if instruction.name in directives:
@@ -33,29 +37,19 @@ class Interpreter:
                     else:
                         value = instruction.args[0].split("'")[1]
                     
-                    if value % 2 != 0:
+                    if len(value) % 2 != 0:
                         value = value.zfill(len(value) + 1)
 
-                    for i in range(len(value),2):
+                    for i in range(0,len(value),2):
                         byte_to_set = value[i] + value[i+1]
-                        self.memory_set.set_memory(next_address, byte_to_set)
-                        next_address = int2hex(hex2int(next_address, 16) + 1)
+                        self.memory_set.set_memory(self.next_address, byte_to_set)
+                        self.next_address = int2hex(hex2int(self.next_address, 16) + 1,16).zfill(4)
 
-                        
-
-
-
-
-
-            instruction.address = next_address
-
-            print("DEBUG: " + "Instruction: " + instruction.name + " Address: " + instruction.address)
-
-            if self.is_simple:
+            else:
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
                 # characters
 
-                next_address = hex(int(next_address, 16) + 3).strip("0x").upper().zfill(4)
+                self.next_address = hex(int(self.next_address, 16) + 3).strip("0x").upper().zfill(4)
 
     def execute_next_instruction(self):
         
@@ -169,16 +163,14 @@ class Interpreter:
             elif instruction_token == 10: #LDA
                 target_instr = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(target_instr)
-
                 value = ""
+                address = target_instr.address
+                
                 for i in range(size_of_val):
-                    address = target_instr.address
                     value = value + self.memory_set.get_memory(address)
-
-                    
-                value.zfill(6)
+                    address = int2hex(hex2int(address,16) + 1, 16)
+                value = value.zfill(6)
                 self.registers.set_register('A', value)
-                print(self.registers.get_register('A'))
 
             elif instruction_token == 11: #LDCH
                 pass
@@ -221,23 +213,24 @@ class Interpreter:
     def __determinesize__(self, instr):
         #Returns the amount of bytes a directive has allocated
         size = 0
-        if instr.label == directives[0]:
+        if instr.name == directives[0]:
             for i in range(int(instr.args[0])):
                 size += 3
         
-        elif instr.label == directives[1]:
+        elif instr.name == directives[1]:
             for i in range(int(instr.args[0])):
                 size += 1
         
-        elif instr.label == directives[2]:
+        elif instr.name == directives[2]:
             if instr.args[0][0] == 'C':
                 char_array = instr.args[0].split("'")
                 for ch in char_array:
                     size += 1
             else:
                 size = 1
+            
 
-        elif instr.label == directives[3]:
+        elif instr.name == directives[3]:
             size = 3
 
         return size
@@ -246,10 +239,11 @@ class Interpreter:
 #------Helper Methods------#
 
 
-def hex2int(val, bits):
-    if (val & (1 << (bits - 1))) != 0:
-        val = val - (1 << bits)
-    return val
+def hex2int(hex_val, bits):
+    value = 0
+    if (int(hex_val,16) & (1 << (bits - 1))) != 0:
+        value = int(hex_val,16) - (1 << bits)
+    return value
 
 def int2hex(number, bits):
     if number < 0:
