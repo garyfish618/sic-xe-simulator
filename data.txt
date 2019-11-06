@@ -1,4 +1,0 @@
-LABEL   ADD m1,m2
-LABEL DIV   m1
-LABEL JSUB  m1, m2
-LABEL LDA   m1
