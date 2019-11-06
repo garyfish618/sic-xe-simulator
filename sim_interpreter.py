@@ -27,6 +27,26 @@ class Interpreter:
 
             #If directive - Leave directive assignment to directives module
             if instruction.name in directives:
+                elif instruction.name == "RESW":
+                    value = 3 *  int (instruction.args[0])
+                    hex2int(next_address)
+                    self.next_address += value
+                    self.next_address = int2hex(next_address, 16)
+
+                elif instruction.name == "RESB":
+                    value = int (instruction.args[0])
+                    hex2int(next_address)
+                    self.next_address += value
+                    self.next_address = int2hex(next_address, 16)
+
+                elif instruction.name == "WORD":
+                    value = int2hex(int (instruction.args[0]), 16)
+                    value = value.zfill(6)
+                    for i in range(0,6,2):
+                        memory_set.set_memory(next_address, value[i+1])
+                        next_address +=1
+                       
+
                 if instruction.name == "BYTE":
                     value = ""
                     str = ""
