@@ -81,15 +81,19 @@ class Registery:
             return self.registers.get(reg)
 
     def set_register(self, reg, val):
-        #Padding
-        if len(val) != 6:
-            val = val.zfill(6)
-            #NOTE Only works with positive #'s. If negative, programmer needs to fill with F's
-
-        #TODO Add padding for a negative value (If negative, need to fill with F's)
-
+        print(val)
         if reg in self.registers.keys():
-            self.registers[reg] = val
+            val_length = 6 - len(val)
+            register = self.registers[reg]
+            new_val = ""
+
+            for i in range(val_length): # Part of register that we are keeping
+                new_val += register[i]
+
+            for i in range(len(val)): # Right-most values to change
+                new_val += val[i]
+            
+            self.registers[reg] = new_val
             return True
         return False
 

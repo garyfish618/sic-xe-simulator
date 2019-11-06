@@ -169,7 +169,6 @@ class Interpreter:
                 for i in range(size_of_val):
                     value = value + self.memory_set.get_memory(address)
                     address = int2hex(hex2int(address,16) + 1, 16)
-                value = value.zfill(6)
                 self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
