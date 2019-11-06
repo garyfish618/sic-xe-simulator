@@ -10,7 +10,7 @@ class Memory:
         return self.memory
 
     def set_memory(self, hex, byte):
-        dec = int (hex, 16)
+        dec = hex2int(hex, 16)
         
         if isSimple:
             if dec < 0 or dec > 4000:
@@ -19,10 +19,20 @@ class Memory:
             if dec < 0 or dec > 128000:
             return False
         
-        byte = get_memory(dec)
+       self.memory[dec] = byte
         return  True
 
-    def view_memory(self):
+    def print_mem_line(self,address):
+        #Prints a line of 10 bytes in memory from a specified address
+        output = address + ":\t"
+        index = hex2int(address, 16)
+
+        for i = 0 in range(10):
+            output = output + self.memory[index]
+
+        print(output)          
+
+    def dump_memory(self):
         output = []
         for byte in self.memory:
             output.append(byte)
@@ -69,5 +79,15 @@ class Registery:
     def view_registers(self):
         for register in self.registers:
             print(register)
-# x = Registery(True)
-# x.viewRegisters()
+
+
+def hex2int(val, bits):
+    if (val & (1 << (bits - 1))) != 0:
+        val = val - (1 << bits)
+    return val
+
+def int2hex(number, bits):
+    if number < 0:
+        return hex((1 << bits) + number)[2:]
+    else:
+        return hex(number)[2:]

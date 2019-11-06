@@ -84,16 +84,33 @@ class Interpreter:
 
         return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
 
-    def __getaddr__(self, label):
+    def token_utilizer(self, instruction_token, arguments, label):
+
+        if (self.isSimple):
+
+            # if instruction_token == 10:
+            #     value = __getinstruction__(arguments[0])
+                
+            #     if value == "WORD":
+                
+            #     if value == "BYTE":
+
+                
+            #     if value == "RESB":
+
+            #     if value == "RESW":
+                
+                
+                
+
+
+    def __getinstruction__(self, label):
         for instr in self.instructions:
             if instr.label == label:
-                return instr.addr
+                return instr
 
-    # def token_utilizer(self, instruction_token, arguments, label):
 
-    # if (self.isSimple):
-    #     if instruction_token == 1: #ADD
-    #         print("Do ADD")
+
 
 
 #------Helper Methods------#
