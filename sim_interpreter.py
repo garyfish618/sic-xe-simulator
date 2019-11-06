@@ -118,101 +118,101 @@ class Interpreter:
 
         if (self.is_simple):
 
-             if instruction_token == 1: #ADD
+            if instruction_token == 1: #ADD
                 print("Do ADD")
 
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
 
-                #ADDs if there is an X register in the instruction line
+                #ADD method if there is register X involved
                 if arguments[1] == 'X':
+                    value_of_X = self.registers.get_register('X')
+                    address = add_hex(value_of_X, instr_line.address)
+                    
                     memory_string = ""
-
                     for i in range(size_of_val):
-                        address = instr_line.address
                         memory_string = memory_string + self.memory_set.get_memory(address)
 
                     memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
-                    value_of_X = add_hex(memory_string, self.registers.get_register('X'))
-                    add_to_A = add_hex(value_of_A, value_of_X)
-                    self.registers.set_register(value_of_X, add_to_A)
-
+                    value_of_A = add_hex(value_of_A, memory_string)
+                    self.registers.set_register('A', value_of_A)
 
                 #ADDs if there is only A register
                 else:
+                    address = instr_line.address
                     memory_string = ""
                     for i in range(size_of_val):
-                        address = instr_line.address
                         memory_string = memory_string + self.memory_set.get_memory(address)
 
                     memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
-                    register_add = add_hex(memory_string, value_of_A)
-                    self.registers.set_register(value_of_A, register_add)
+                    value_of_A = add_hex(memory_string, value_of_A)
+                    self.registers.set_register('A', value_of_A)
         
-        elif instruction_token == 2: #AND
-            pass
-        elif instruction_token == 3: #COMP
-            pass
-        elif instruction_token == 4: #DIV
-            pass
-        elif instruction_token == 5: #J
-            pass
-        elif instruction_token == 6: #JEQ
-            pass
-        elif instruction_token == 7: #JGT
-            pass
-        elif instruction_token == 8: #JLT
-            pass
-        elif instruction_token == 9: #JSUB
-            pass
-        elif instruction_token == 10: #LDA
-            pass
-            target_instr = self.__getinstruction__(arguments[0])
-            size_of_val = self.__determinesize__(target_instr)
+            elif instruction_token == 2: #AND
+                pass
+            elif instruction_token == 3: #COMP
+                pass
+            elif instruction_token == 4: #DIV
+                pass
+            elif instruction_token == 5: #J
+                pass
+            elif instruction_token == 6: #JEQ
+                pass
+            elif instruction_token == 7: #JGT
+                pass
+            elif instruction_token == 8: #JLT
+                pass
+            elif instruction_token == 9: #JSUB
+                pass
 
-            value = ""
-            for i in range(size_of_val):
-                address = target_instr.address
-                value = value + self.memory_set.get_memory(address)
+            elif instruction_token == 10: #LDA
+                target_instr = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(target_instr)
+
+                value = ""
+                for i in range(size_of_val):
+                    address = target_instr.address
+                    value = value + self.memory_set.get_memory(address)
 
                     
                 value.zfill(6)
                 self.registers.set_register('A', value)
                 print(self.registers.get_register('A'))
-        elif instruction_token == 11: #LDCH
-            pass
-        elif instruction_token == 12: #LDL
-            pass
-        elif instruction_token == 13: #LDX
-            pass
-        elif instruction_token == 14: #MUL
-            pass
-        elif instruction_token == 15: #OR
-            pass
-        elif instruction_token == 16: #RD
-            pass
-        elif instruction_token == 17: #RSUB
-            pass
-        elif instruction_token == 18: #STA
-            pass
-        elif instruction_token == 19: #STCH
-            pass
-        elif instruction_token == 20: #STL
-            pass
-        elif instruction_token == 21: #STSW
-            pass
-        elif instruction_token == 22: #STX
-            pass
-        elif instruction_token == 23: #SUB
-            pass
-        elif instruction_token == 24: #TD
-            pass
-        elif instruction_token == 25: #TIX
-            pass
-        elif instruction_token == 26: #WD
-            pass
+
+            elif instruction_token == 11: #LDCH
+                pass
+            elif instruction_token == 12: #LDL
+                pass
+            elif instruction_token == 13: #LDX
+                pass
+            elif instruction_token == 14: #MUL
+                pass
+            elif instruction_token == 15: #OR
+                pass
+            elif instruction_token == 16: #RD
+                pass
+            elif instruction_token == 17: #RSUB
+                pass
+            elif instruction_token == 18: #STA
+                pass
+            elif instruction_token == 19: #STCH
+                pass
+            elif instruction_token == 20: #STL
+                pass
+            elif instruction_token == 21: #STSW
+                pass
+            elif instruction_token == 22: #STX
+                pass
+            elif instruction_token == 23: #SUB
+                pass
+            elif instruction_token == 24: #TD
+                pass
+            elif instruction_token == 25: #TIX
+                pass
+            elif instruction_token == 26: #WD
+                pass
     def __getinstruction__(self, label):
         #Returns an instruction object given a label
         for instr in self.instructions:
