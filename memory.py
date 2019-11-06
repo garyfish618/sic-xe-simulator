@@ -3,14 +3,23 @@ class Memory:
     def __init__(self, isSimple):
         if isSimple:
             self.memory = [None] * 4000      #size in bytes
+            for i in range(4000):
+                self.memory[i] = "00"
         else:
             self.memory = [None] * 128000    #size in bytes
+            for i in range(128000):
+                self.memory[i] = "00"
 
-    def get_memory(self):
-        return self.memory
+    def get_memory(self, address):
+        dec = hex2int(address,16)
 
-    def set_memory(self, hex, byte):
-        dec = int (hex, 16)
+        if isSimple:
+            if dec < 0 or dec > 4000:
+                return False
+            return self.memory[dec]
+
+    def set_memory(self, address, byte):
+        dec = hex2int(address, 16)
         
         if isSimple:
             if dec < 0 or dec > 4000:
@@ -19,10 +28,20 @@ class Memory:
             if dec < 0 or dec > 128000:
                 return False
         
-        byte = get_memory(dec)
+        self.memory[dec] = byte
         return  True
 
-    def view_memory(self):
+    def print_mem_line(self,address):
+        #Prints a line of 10 bytes in memory from a specified address
+        output = address + ":\t"
+        index = hex2int(address, 16)
+
+        for i in range(10):
+            output = output + self.memory[index]
+
+        print(output)          
+
+    def dump_memory(self):
         output = []
         for byte in self.memory:
             output.append(byte)
@@ -37,28 +56,29 @@ class Registery:
         if isSimple:
             #5 registers 24 bits in length 
             self.registers = {  
-                'A' : 0,    #Accumulator
-                'X' : 0,    #Index register
-                'L' : 0,    #Linkage register (JSUB)
-                'PC': 0,    #Program counter
-                'SW': 0     #Status word (Condition Code)
+                'A' : "000000",    #Accumulator
+                'X' : "000000",    #Index register
+                'L' : "000000",    #Linkage register (JSUB)
+                'PC': "000000",    #Program counter
+                'SW': "000000"     #Status word (Condition Code)
             }
         else:
             #3 additional registers, 24 bit length + 1 register 48 bit length
             self.registers = {  
-                'A' : 0,    #Accumulator
-                'X' : 0,    #Index register
-                'L' : 0,    #Linkage register (JSUB)
-                'PC': 0,    #Program counter
-                'SW': 0,    #Status word (Condition Code)
-                'B' : 0,    #Base register; used for addressing
-                'S' : 0,    #General working register
-                'T' : 0,    #General working register
-                'F' : 0     #Floating-point accumulator (48 bits)
+                'A' : "000000",    #Accumulator
+                'X' : "000000",    #Index register
+                'L' : "000000",    #Linkage register (JSUB)
+                'PC': "000000",    #Program counter
+                'SW': "000000",    #Status word (Condition Code)
+                'B' : "000000",    #Base register; used for addressing
+                'S' : "000000",    #General working register
+                'T' : "000000",    #General working register
+                'F' : "000000"     #Floating-point accumulator (48 bits)
             }
 
-    def get_registers(self):
-        return self.registers
+    def get_register(self, reg):
+        if reg in self.registers.keys():
+            return self.registers.get(reg)
 
     def set_register(self, reg, val):
         if reg in self.registers.keys():
@@ -69,5 +89,15 @@ class Registery:
     def view_registers(self):
         for register in self.registers:
             print(register)
-# x = Registery(True)
-# x.viewRegisters()
+
+
+def hex2int(val, bits):
+    if (val & (1 << (bits - 1))) != 0:
+        val = val - (1 << bits)
+    return val
+
+def int2hex(number, bits):
+    if number < 0:
+        return hex((1 << bits) + number)[2:]
+    else:
+        return hex(number)[2:]
