@@ -119,7 +119,6 @@ class Interpreter:
         if (self.is_simple):
 
             if instruction_token == 1: #ADD
-                print("Do ADD")
 
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
