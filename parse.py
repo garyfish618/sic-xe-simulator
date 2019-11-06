@@ -18,6 +18,7 @@ class Instruction:
     def setArgs(self, args):
         return self.args
 
+
 def read_file(file):
     instruction_list = []
     try:

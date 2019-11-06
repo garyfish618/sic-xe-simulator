@@ -7,22 +7,30 @@ class Interpreter:
         self.instructions = instruction_array
         self.is_simple = isSimple
         self.instruction_pointer = 0
-        self.memory_set = memory()
+        # self.memory_set = memory()
 
-        self.assign_addresses(instruction_array)
-
-    def assign_address(self, instruction_array):
+    def assign_address(self):
         next_address = "0000"
+        directives = ["RESW", "RESB", "BYTE", "WORD"]
 
-        for instruction in instruction_array:
+        for instruction in self.instructions:
             if instruction.name == "START":
                 next_address = instruction.args[0]
-                instruction.address = next_address
-            
-            if is_simple:
-                #Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4 characters
-                next_address = hex(int(next_address, 16) + 3).strip("0x").upper().zfill(4) 
-                print(next_address)
+                continue
+
+            #If directive - Leave directive assignment to directives module
+            if instruction.name in directives:
+                #TODO - Execute Directive Assignment module
+                pass
+            instruction.address = next_address
+
+            print("DEBUG: " + "Instruction: " + instruction.name + " Address: " + instruction.address)
+
+            if self.is_simple:
+                # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
+                # characters
+
+                next_address = hex(int(next_address, 16) + 3).strip("0x").upper().zfill(4)
 
     def execute_next_instruction(self):
         next_line = self.instructions[self.instruction_pointer]
@@ -31,16 +39,16 @@ class Interpreter:
         label = next_line.label
         arguments = next_line.args
 
-        instruction_token = determine_instruction(instruction_name)
+        instruction_token = self.determine_instruction(instruction_name)
 
-        if instruction_token == -1: 
-            raise Exception("Invalid instruction name on line") #TODO provide line number once implemented in parser
+        if instruction_token == -1:
+            raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
 
         token_utilizer(instruction_name, arguments, label)
 
     def determine_instruction(self, instruction_name):
         instruction_set = {}
-         
+
         if (self.is_simple):
             instruction_set = {
                 1: "ADD",
@@ -74,44 +82,24 @@ class Interpreter:
         else:
             instruction_set = {}
 
-        return instruction_set.get(instruction_name, -1) #Returns -1 if instruction was not found
-    
-    #def token_utilizer(self, instruction_token, arguments, label):
+        return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
 
-        # if (self.isSimple):
-        #     if instruction_token == 1: #ADD
-        #         print("Do ADD")
-            
-        #     elif instruction_token == 2: #AND
-                
-        #     elif instruction_token == 3: #COMP
-        #         #Do a SUB between m1 and m2
-        #         #Store that value in register
-        #         result = 
+    def __getaddr__(self, label):
+        for instr in self.instructions:
+            if instr.label == label:
+                return instr.addr
 
-        #     elif instruction_token == 4: #DIV
+    # def token_utilizer(self, instruction_token, arguments, label):
 
-        #     elif instruction_token == 5: #J
-
-                
-
-        #     elif instruction_token == 1: #ADD
-
-        #     elif instruction_token == 1: #ADD
-
-        #     elif instruction_token == 1: #ADD
-
-        #     elif instruction_token == 1: #ADD
-            
-        #     elif instruction_token == 1: #ADD
-            
-        #     elif instruction_token == 1: #ADD
+    # if (self.isSimple):
+    #     if instruction_token == 1: #ADD
+    #         print("Do ADD")
 
 
-#Helper methods
+#------Helper Methods------#
 
 def hex2int(val, bits):
-    if (val & (1 << (bits - 1))) != 0: 
+    if (val & (1 << (bits - 1))) != 0:
         val = val - (1 << bits)
     return val
 
@@ -119,12 +107,12 @@ def int2hex(number, bits):
     if number < 0:
         return hex((1 << bits) + number)[2:]
     else:
-        return hex(number)[2:]             
+        return hex(number)[2:]
+
 
 def add_hex(x, y):
     return int2hex(hex2int(x, len(x) * 4) + hex2int(y, len(y) * 4))
 
+
 def sub_hex(x, y):
     return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4))
-
-
