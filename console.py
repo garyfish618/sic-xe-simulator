@@ -1,6 +1,7 @@
 import sys
 from parse import read_file
 from sim_interpreter import Interpreter
+from memory import Memory, Registery
 
 SIZE_OF_BYTE = 2 #Characters
 VALID_OPTIONS_SIMPLE = ["A", "X", "L", "PC", "SW"] #NOTE How should we handle a user trying to edit the PC register?
@@ -17,8 +18,11 @@ def get_input():
 class Console:
 
     def __init__(self):
-        self.isExtended = True # HARD CODE TODO: REMOVE IN ARCHITECTURE INTEGRATION
+        self.isExtended = False # HARD CODE TODO: REMOVE IN ARCHITECTURE INTEGRATION
         self.instruction_array = None
+        self.memory = Memory(True)
+        self.registery = Registery(True)        
+        self.interpreter = None
 
     def command_handler(self, command = "NA"):
         commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit"]
@@ -76,14 +80,16 @@ class Console:
                     print("Printing register", reg_choice)
                 
                 elif not self.isExtended and reg_choice in VALID_OPTIONS_SIMPLE:
-                    print("Printing register", reg_choice)
+                    print(self.registery.get_register(reg_choice))
+                    
 
             elif args[0] == "start":
-                interpreter = Interpreter(self.instruction_array, True) #TODO remove hardcoded True
-                interpreter.assign_address()
+                self.interpreter = Interpreter(self.instruction_array, self.memory, self.registery)
+                self.interpreter.assign_address()
 
             elif args[0] == "next":
-                print("Next line")
+                self.interpreter.execute_next_instruction()
+            
 
             elif args[0] == "changereg":
                 if len(args) != 3:
