@@ -307,4 +307,8 @@ def add_hex(x, y):
 
 
 def sub_hex(x, y):
-    return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4))
+    size = 0
+    if len(x) != len(y):
+        raise Exception("Illegal sub_hex")
+
+    return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4),len(x) * 4)
