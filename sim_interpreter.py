@@ -154,7 +154,8 @@ class Interpreter:
                     memory_string = ""
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
-
+                        address = add_hex(address, "0001").zfill(4)
+                        
                     memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
                     value_of_A = add_hex(memory_string, value_of_A)
