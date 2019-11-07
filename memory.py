@@ -81,19 +81,22 @@ class Registery:
             return self.registers.get(reg)
 
     def set_register(self, reg, val):
-        print(val)
         if reg in self.registers.keys():
-            val_length = 6 - len(val)
-            register = self.registers[reg]
-            new_val = ""
+            if len(val) != 6:
+                val_length = 6 - len(val)
+                register = self.registers[reg]
+                new_val = ""
 
-            for i in range(val_length): # Part of register that we are keeping
-                new_val += register[i]
+                for i in range(val_length): # Part of register that we are keeping
+                    new_val += register[i]
 
-            for i in range(len(val)): # Right-most values to change
-                new_val += val[i]
+                for i in range(len(val)): # Right-most values to change
+                    new_val += val[i]
+
+                self.registers[reg] = new_val
+                return True
             
-            self.registers[reg] = new_val
+            self.registers[reg] = val
             return True
         return False
 
@@ -112,4 +115,4 @@ def int2hex(number, bits):
     if number < 0:
         return hex((1 << bits) + number)[2:]
     else:
-        return hex(number)[2:]
+        return hex(number)[2:].upper()

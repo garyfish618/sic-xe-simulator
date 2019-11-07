@@ -1,5 +1,12 @@
-    START   1000
-    LDA     NUMX
+        START   0500
+        LDA     NUM1
+        LDX     VALX
+        ADD     NUM1,X
 
-NUMX    WORD    1
-NUMY    WORD    2
+
+NUM1    WORD    -50
+        WORD    1
+NUM2    WORD    40
+
+VALX    WORD    6
+
