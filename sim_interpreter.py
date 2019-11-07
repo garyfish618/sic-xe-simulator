@@ -213,7 +213,7 @@ class Interpreter:
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
 
-                #ADD method if there is register X involved
+                #SUB method if there is register X involved
                 if arguments[1] == 'X':
                     value_of_X = self.registers.get_register('X')
                     address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
@@ -228,7 +228,7 @@ class Interpreter:
                     value_of_A = sub_hex(value_of_A, memory_string)
                     self.registers.set_register('A', value_of_A)
 
-                #ADDs if there is only A register
+                #SUB if there is only A register
                 else:
                     address = instr_line.address
                     memory_string = ""
@@ -238,7 +238,7 @@ class Interpreter:
                         
                     memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
-                    value_of_A = sub_hex(memory_string, value_of_A)
+                    value_of_A = sub_hex(value_of_A ,memory_string)
                     self.registers.set_register('A', value_of_A)
                 
             elif instruction_token == 24: #TD
