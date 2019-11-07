@@ -154,7 +154,8 @@ class Interpreter:
                     memory_string = ""
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
-
+                        address = add_hex(address, "0001").zfill(4)
+                        
                     memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
                     value_of_A = add_hex(memory_string, value_of_A)
@@ -209,7 +210,37 @@ class Interpreter:
             elif instruction_token == 22: #STX
                 pass
             elif instruction_token == 23: #SUB
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+
+                #SUB method if there is register X involved
+                if arguments[1] == 'X':
+                    value_of_X = self.registers.get_register('X')
+                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
+
+                    memory_string = ""
+                    for i in range(size_of_val):
+                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+
+                    memory_string = memory_string.zfill(6)
+                    value_of_A = self.registers.get_register('A')
+                    value_of_A = sub_hex(value_of_A, memory_string)
+                    self.registers.set_register('A', value_of_A)
+
+                #SUB if there is only A register
+                else:
+                    address = instr_line.address
+                    memory_string = ""
+                    for i in range(size_of_val):
+                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+                        
+                    memory_string = memory_string.zfill(6)
+                    value_of_A = self.registers.get_register('A')
+                    value_of_A = sub_hex(value_of_A ,memory_string)
+                    self.registers.set_register('A', value_of_A)
+                
             elif instruction_token == 24: #TD
                 pass
             elif instruction_token == 25: #TIX
