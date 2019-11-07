@@ -1,7 +1,7 @@
 import parser
 from memory import Memory, Registery
 
-directives = ["RESW", "RESB", "BYTE", "WORD"]
+directives = ["RESW", "RESB", "BYTE", "WORD","START"]
 
 class Interpreter:
 
@@ -27,25 +27,6 @@ class Interpreter:
 
             #If directive - Leave directive assignment to directives module
             if instruction.name in directives:
-                elif instruction.name == "RESW":
-                    value = 3 *  int (instruction.args[0])
-                    hex2int(next_address)
-                    self.next_address += value
-                    self.next_address = int2hex(next_address, 16)
-
-                elif instruction.name == "RESB":
-                    value = int (instruction.args[0])
-                    hex2int(next_address)
-                    self.next_address += value
-                    self.next_address = int2hex(next_address, 16)
-
-                elif instruction.name == "WORD":
-                    value = int2hex(int (instruction.args[0]), 16)
-                    value = value.zfill(6)
-                    for i in range(0,6,2):
-                        memory_set.set_memory(next_address, value[i+1])
-                        next_address +=1
-                       
 
                 if instruction.name == "BYTE":
                     value = ""
@@ -63,6 +44,21 @@ class Interpreter:
                     for i in range(0,len(value),2):
                         byte_to_set = value[i] + value[i+1]
                         self.memory_set.set_memory(self.next_address, byte_to_set)
+                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
+
+                elif instruction.name == "RESW":
+                    value = 3 *  int (instruction.args[0])
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(4)).zfill(4)
+
+                elif instruction.name == "RESB":
+                    value = int (instruction.args[0])
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(4)).zfill(4)
+
+                elif instruction.name == "WORD":
+                    value = int2hex(int (instruction.args[0]), 16)
+                    value = value.zfill(6)
+                    for i in range(0,6,2):
+                        self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
                         self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
 
             else:
@@ -140,11 +136,12 @@ class Interpreter:
                 #ADD method if there is register X involved
                 if arguments[1] == 'X':
                     value_of_X = self.registers.get_register('X')
-                    address = add_hex(value_of_X, instr_line.address.zfill(6))
-                    
+                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
+
                     memory_string = ""
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
 
                     memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
@@ -264,7 +261,7 @@ def int2hex(number, bits):
     if number < 0:
         return hex((1 << bits) + number)[2:]
     else:
-        return hex(number)[2:]
+        return hex(number)[2:].upper()
 
 def ascii2hex(val):
     return hex(val)[2:]
