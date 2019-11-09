@@ -138,28 +138,34 @@ class Interpreter:
                     value_of_X = self.registers.get_register('X')
                     address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
 
-                    memory_string = ""
+                    memory_string_hex = ""
                     for i in range(size_of_val):
-                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                         address = add_hex(address, "0001").zfill(4)
 
-                    memory_string = memory_string.zfill(6)
-                    value_of_A = self.registers.get_register('A')
-                    value_of_A = add_hex(value_of_A, memory_string)
-                    self.registers.set_register('A', value_of_A)
+                    memory_string_int = hex2int(memory_string_hex, 16)
+                    print(memory_string_int)
+                    value_of_A_hex = self.registers.get_register('A')
+                    value_of_A_int = hex2int(value_of_A_hex, 16)
+                    print(value_of_A_int)
+                    value_of_A_int = add_int(memory_string_int, value_of_A_int)
+                    print(value_of_A_int)
+                    self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
                 #ADDs if there is only A register
                 else:
                     address = instr_line.address
-                    memory_string = ""
+                    memory_string_hex = ""
                     for i in range(size_of_val):
-                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                         address = add_hex(address, "0001").zfill(4)
                         
-                    memory_string = memory_string.zfill(6)
-                    value_of_A = self.registers.get_register('A')
-                    value_of_A = add_hex(memory_string, value_of_A)
-                    self.registers.set_register('A', value_of_A)
+                    memory_string_int = hex2int(memory_string_hex, 16)
+
+                    value_of_A_hex = self.registers.get_register('A')
+                    value_of_A_int = hex2int(value_of_A_hex, 16)
+                    value_of_A_int = add_int(memory_string_int, value_of_A_int)
+                    self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
         
             elif instruction_token == 2: #AND
                 pass
@@ -192,7 +198,39 @@ class Interpreter:
             elif instruction_token == 11: #LDCH
                 pass
             elif instruction_token == 14: #MUL
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+
+                #MUL method if there is register X involved
+                if arguments[1] == 'X':
+                    value_of_X = self.registers.get_register('X')
+                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
+
+                    memory_string = ""
+                    for i in range(size_of_val):
+                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+
+                    memory_string = memory_string.zfill(6)
+                    value_of_A = self.registers.get_register('A')
+                    value_of_A = mul_hex(value_of_A, memory_string)
+                    self.registers.set_register('A', value_of_A)
+
+                #MUL if there is only A register
+                else:
+                    address = instr_line.address
+                    memory_string = ""
+                    for i in range(size_of_val):
+                        memory_string = memory_string + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+                    print(memory_string)
+
+                    memory_string = memory_string.zfill(6)
+                    value_of_A = self.registers.get_register('A')
+                    print(hex2int(value_of_A, len(value_of_A) * 4))
+                    value_of_A = mul_hex(value_of_A ,memory_string)
+                    
+                    self.registers.set_register('A', value_of_A)
             elif instruction_token == 15: #OR
                 pass
             elif instruction_token == 16: #RD
@@ -282,15 +320,17 @@ class Interpreter:
 #------Helper Methods------#
 
 
-def hex2int(hex_val, bits):
-    value = int(hex_val,16)
-    if (int(hex_val,16) & (1 << (bits - 1))) != 0:
-        value = int(hex_val,16) - (1 << bits)
+    
+#converts from hex to 2's comp signed int
+def hex2int(hexstr,bits): 
+    value = int(hexstr,16)
+    if value & (1 << (bits-1)):
+        value -= 1 << bits
     return value
 
 def int2hex(number, bits):
     if number < 0:
-        return hex((1 << bits) + number)[2:]
+        return hex((1 << bits) + number)[2:].upper()
     else:
         return hex(number)[2:].upper()
 
@@ -302,9 +342,14 @@ def add_hex(x, y):
     size = 0
     if len(x) != len(y):
         raise Exception("Illegal add_hex")
-
     return int2hex(hex2int(x, len(x) * 4) + hex2int(y, len(y) * 4),len(x) * 4)
+    
+def add_int(x, y):
+    return (x + y)
 
+def sub_int(x, y):
+    return (x - y)
 
-def sub_hex(x, y):
-    return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4))
+def mul_int(x, y):
+    return (x * y)
+
