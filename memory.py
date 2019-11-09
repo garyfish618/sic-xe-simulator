@@ -92,7 +92,6 @@ class Registery:
 
                 for i in range(len(val)): # Right-most values to change
                     new_val += val[i]
-
                 self.registers[reg] = new_val
                 return True
             
