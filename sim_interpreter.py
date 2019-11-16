@@ -2,6 +2,7 @@ import parser
 from memory import Memory, Registery
 
 directives = ["RESW", "RESB", "BYTE", "WORD","START"]
+conditions = ["LT", "GT", "EQ"]
 
 class Interpreter:
 
@@ -12,6 +13,7 @@ class Interpreter:
         self.memory_set = memory
         self.registers = registers
         self.next_address = "0000"
+        self.condition_word = ""
 
     def assign_address(self):
        
@@ -143,6 +145,7 @@ class Interpreter:
                         memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                         address = add_hex(address, "0001").zfill(4)
 
+                    print(memory_string_hex)
                     memory_string_int = hex2int(memory_string_hex, 16)
                     print(memory_string_int)
                     value_of_A_hex = self.registers.get_register('A')
@@ -165,6 +168,7 @@ class Interpreter:
                     value_of_A_hex = self.registers.get_register('A')
                     value_of_A_int = hex2int(value_of_A_hex, 16)
                     value_of_A_int = add_int(memory_string_int, value_of_A_int)
+                    print(value_of_A_int)
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
         
             elif instruction_token == 2: #AND
@@ -280,11 +284,32 @@ class Interpreter:
                     self.registers.set_register('A', value_of_A)
                 
             elif instruction_token == 24: #TD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+
+                while(True):
+                    print("Is device " + device_id + " ready? (y/n):")
+                    decision = input().lower()
+
+                    if decision == 'y':
+                        self.condition_word = conditions[0]
+                        break
+
+                    elif decision == 'n':
+                        self.condition_word = conditions[2]
+                        break
+                    
+                    else:
+                        print("Invalid decision")
+
             elif instruction_token == 25: #TIX
                 pass
             elif instruction_token == 26: #WD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+                reg_A = self.registers.get_register("A")
+                print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
+                
     def __getinstruction__(self, label):
         #Returns an instruction object given a label
         for instr in self.instructions:
@@ -353,12 +378,9 @@ def sub_int(x, y):
 def mul_int(x, y):
     return (x * y)
 
-<<<<<<< HEAD
 def sub_hex(x, y):
     size = 0
     if len(x) != len(y):
         raise Exception("Illegal sub_hex")
 
     return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4),len(x) * 4)
-=======
->>>>>>> 204cb0699d96661ebd3612f8e3fb5d7a79303008
