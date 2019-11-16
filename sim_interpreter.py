@@ -63,10 +63,12 @@ class Interpreter:
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
                         self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
 
-            else:
+            elif self.determine_instruction(instruction.name) == -1:
+                raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
+
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
                 # characters
-
+            else:
                 self.next_address = hex(int(self.next_address, 16) + 3).strip("0x").upper().zfill(4)
 
     def execute_next_instruction(self):
@@ -82,10 +84,6 @@ class Interpreter:
         arguments = next_line.args
 
         instruction_token = self.determine_instruction(instruction_name)
-
-        if instruction_token == -1:
-            raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
-
         self.token_utilizer(instruction_token, arguments, label, instruction_name)
 
     def determine_instruction(self, instruction_name):
@@ -145,14 +143,10 @@ class Interpreter:
                         memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                         address = add_hex(address, "0001").zfill(4)
 
-                    print(memory_string_hex)
                     memory_string_int = hex2int(memory_string_hex, 16)
-                    print(memory_string_int)
                     value_of_A_hex = self.registers.get_register('A')
                     value_of_A_int = hex2int(value_of_A_hex, 16)
-                    print(value_of_A_int)
                     value_of_A_int = add_int(memory_string_int, value_of_A_int)
-                    print(value_of_A_int)
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
                 #ADDs if there is only A register
@@ -168,7 +162,6 @@ class Interpreter:
                     value_of_A_hex = self.registers.get_register('A')
                     value_of_A_int = hex2int(value_of_A_hex, 16)
                     value_of_A_int = add_int(memory_string_int, value_of_A_int)
-                    print(value_of_A_int)
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
         
             elif instruction_token == 2: #AND
@@ -178,13 +171,42 @@ class Interpreter:
             elif instruction_token == 4: #DIV
                 pass
             elif instruction_token == 5: #J
-                pass
+                new_index = self.__getindex__(arguments[0])
+                
+                if new_index == -1:
+                    raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                self.instruction_pointer = new_index
+
+                
             elif instruction_token == 6: #JEQ
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
+
             elif instruction_token == 7: #JGT
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
             elif instruction_token == 8: #JLT
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
             elif instruction_token == 9: #JSUB
                 pass
 
@@ -227,11 +249,9 @@ class Interpreter:
                     for i in range(size_of_val):
                         memory_string = memory_string + self.memory_set.get_memory(address)
                         address = add_hex(address, "0001").zfill(4)
-                    print(memory_string)
 
                     memory_string = memory_string.zfill(6)
                     value_of_A = self.registers.get_register('A')
-                    print(hex2int(value_of_A, len(value_of_A) * 4))
                     value_of_A = mul_hex(value_of_A ,memory_string)
                     
                     self.registers.set_register('A', value_of_A)
@@ -315,6 +335,14 @@ class Interpreter:
         for instr in self.instructions:
             if instr.label == label:
                 return instr
+
+    def __getindex__(self, label):
+        #Returns position of instruction in instruction array - useful for jump instructions
+
+        for i in range(len(self.instructions)):
+            if self.instructions[i].label == label:
+                return i
+        return -1
 
     def __determinesize__(self, instr):
         #Returns the amount of bytes a directive has allocated
