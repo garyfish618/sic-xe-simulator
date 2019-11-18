@@ -170,7 +170,40 @@ class Interpreter:
             elif instruction_token == 3: #COMP
                 pass
             elif instruction_token == 4: #DIV
-                pass
+                
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+                #DIV method if there is register X involved
+                if arguments[1] == 'X':
+                    value_of_X = self.registers.get_register('X')
+                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
+
+                    memory_string_hex = ""
+                    for i in range(size_of_val):
+                        memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+
+                    memory_string_int = hex2int(memory_string_hex, 16)
+
+                    value_of_A_hex = self.registers.get_register('A')
+                    value_of_A_int = hex2int(value_of_A_hex, 16)
+                    value_of_A_int = int(value_of_A_int / memory_string_int)
+                    self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
+
+                #DIVs if there is only A register
+                else:
+                    address = instr_line.address
+                    memory_string_hex = ""
+                    for i in range(size_of_val):
+                        memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                        address = add_hex(address, "0001").zfill(4)
+                        
+                    memory_string_int = hex2int(memory_string_hex, 16)
+                    
+                    value_of_A_hex = self.registers.get_register('A')
+                    value_of_A_int = hex2int(value_of_A_hex, 16)
+                    value_of_A_int = int(value_of_A_int / memory_string_int)
+                    self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
             elif instruction_token == 5: #J
                 pass
             elif instruction_token == 6: #JEQ
@@ -230,7 +263,7 @@ class Interpreter:
                     value_of_A_int = hex2int(value_of_A_hex, 16)
                     value_of_A_int = memory_string_int * value_of_A_int
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
-                    
+
             elif instruction_token == 15: #OR
                 pass
             elif instruction_token == 16: #RD
