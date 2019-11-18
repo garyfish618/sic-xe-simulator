@@ -2,6 +2,7 @@ import parser
 from memory import Memory, Registery
 
 directives = ["RESW", "RESB", "BYTE", "WORD","START"]
+conditions = ["LT", "GT", "EQ"]
 
 class Interpreter:
 
@@ -12,6 +13,7 @@ class Interpreter:
         self.memory_set = memory
         self.registers = registers
         self.next_address = "0000"
+        self.condition_word = ""
 
     def assign_address(self):
        
@@ -61,10 +63,12 @@ class Interpreter:
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
                         self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
 
-            else:
+            elif self.determine_instruction(instruction.name) == -1:
+                raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
+
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
                 # characters
-
+            else:
                 self.next_address = hex(int(self.next_address, 16) + 3).strip("0x").upper().zfill(4)
 
     def execute_next_instruction(self):
@@ -80,10 +84,6 @@ class Interpreter:
         arguments = next_line.args
 
         instruction_token = self.determine_instruction(instruction_name)
-
-        if instruction_token == -1:
-            raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
-
         self.token_utilizer(instruction_token, arguments, label, instruction_name)
 
     def determine_instruction(self, instruction_name):
@@ -172,13 +172,42 @@ class Interpreter:
             elif instruction_token == 4: #DIV
                 pass
             elif instruction_token == 5: #J
-                pass
+                new_index = self.__getindex__(arguments[0])
+                
+                if new_index == -1:
+                    raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                self.instruction_pointer = new_index
+
+                
             elif instruction_token == 6: #JEQ
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
+
             elif instruction_token == 7: #JGT
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
             elif instruction_token == 8: #JLT
-                pass
+                if self.condition_word == conditions[2]:
+                    new_index = self.__getindex__(arguments[0])
+                
+                    if new_index == -1:
+                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+
+                    self.instruction_pointer = new_index
+
             elif instruction_token == 9: #JSUB
                 pass
 
@@ -284,16 +313,45 @@ class Interpreter:
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
                     
             elif instruction_token == 24: #TD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+
+                while(True):
+                    print("Is device " + device_id + " ready? (y/n):")
+                    decision = input().lower()
+
+                    if decision == 'y':
+                        self.condition_word = conditions[0]
+                        break
+
+                    elif decision == 'n':
+                        self.condition_word = conditions[2]
+                        break
+                    
+                    else:
+                        print("Invalid decision")
+
             elif instruction_token == 25: #TIX
                 pass
             elif instruction_token == 26: #WD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+                reg_A = self.registers.get_register("A")
+                print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
+                
     def __getinstruction__(self, label):
         #Returns an instruction object given a label
         for instr in self.instructions:
             if instr.label == label:
                 return instr
+
+    def __getindex__(self, label):
+        #Returns position of instruction in instruction array - useful for jump instructions
+
+        for i in range(len(self.instructions)):
+            if self.instructions[i].label == label:
+                return i
+        return -1
 
     def __determinesize__(self, instr):
         #Returns the amount of bytes a directive has allocated
@@ -327,19 +385,29 @@ class Interpreter:
     
 #converts from hex to 2's comp signed int
 def hex2int(hexstr,bits): 
-    value = int(hexstr,16)
-    if value & (1 << (bits-1)):
-        value -= 1 << bits
-    return value
+    try:
+        value = int(hexstr,16)
+        if value & (1 << (bits-1)):
+            value -= 1 << bits
+        return value
+    except:
+        return None
 
 def int2hex(number, bits):
-    if number < 0:
-        return hex((1 << bits) + number)[2:].upper()
-    else:
-        return hex(number)[2:].upper()
+      try:
+        if number < 0:
+            return hex((1 << bits) + number)[2:]
+        else:
+            return hex(number)[2:].upper()
+    except: 
+        return None
 
 def ascii2hex(val):
-    return hex(val)[2:]
+    try:
+        hex_val = hex(val)[2:]
+        return hex(val)[2:]
+    except:
+        return None
 
 def add_hex(x, y):
     #Adds two hex numbers - NOTE both numbers must have same number of bits 

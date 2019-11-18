@@ -65,7 +65,12 @@ class Console:
                     print("Printing memory on extended address")
         
                 elif not self.isExtended and len(address) == SIZE_OF_BYTE * 2:
-                    print("Printing memory on simple address")
+                    memory = self.memory.get_memory(address)
+                    if(memory == None):
+                        print("Address out of bounds or invalid address")
+                    
+                    else:
+                        print(memory)
 
                 else:
                     print("Please provide an address in the correct format")     
@@ -99,7 +104,7 @@ class Console:
                 reg_choice = args[1]
                 value = args[2]
 
-                if(len(value) != SIZE_OF_BYTE * 2):
+                if(len(value) % 2 != 0 or len(value) > 6):
                     print("Please provide a valid value")
                     return
                 
@@ -107,7 +112,8 @@ class Console:
                     print("Adjusting register", reg_choice, "to", value )
                 
                 elif not self.isExtended and reg_choice in VALID_OPTIONS_SIMPLE:
-                    print("Adjusting register", reg_choice, "to", value)
+                    if self.registery.set_register(reg_choice, value) == False:
+                        print("Invalid value - Setting register failed")
 
                 else:
                     print("Please provide a valid register")     
@@ -124,7 +130,8 @@ class Console:
                     print("Please provide a valid value")
                     return
                 
-                print("Changing byte at", address, "to", value )
+                if self.memory.set_memory(address, value) == False:
+                    print("Invalid value or address - Setting memory failed")
 
             elif args[0] == "stop":
                 print("Stopping interpreter")
