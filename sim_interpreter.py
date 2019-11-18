@@ -187,7 +187,7 @@ class Interpreter:
 
                     value_of_A_hex = self.registers.get_register('A')
                     value_of_A_int = hex2int(value_of_A_hex, 16)
-                    value_of_A_int = int(value_of_A_int / memory_string_int)
+                    value_of_A_int = value_of_A_int / memory_string_int
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
                 #DIVs if there is only A register
@@ -202,7 +202,7 @@ class Interpreter:
                     
                     value_of_A_hex = self.registers.get_register('A')
                     value_of_A_int = hex2int(value_of_A_hex, 16)
-                    value_of_A_int = int(value_of_A_int / memory_string_int)
+                    value_of_A_int = value_of_A_int / memory_string_int
                     self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
             elif instruction_token == 5: #J
                 new_index = self.__getindex__(arguments[0])
@@ -257,24 +257,22 @@ class Interpreter:
 
             elif instruction_token == 11: #LDCH
                 target_instr = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                value = "" 
+                size_of_val = self.__determinesize__(target_instr)
+                value = ""
+                input_string = ""
                 
                 #LDCH method if there is register X involved
                 if arguments[1] == 'X':
                     value_of_X = self.registers.get_register('X')
-                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
-
-                    value = value + self.memory_set.get_memory(address)
-                    address = int2hex(hex2int(address,16) + 1, 16)
-                    self.registers.set_register(name[2], value)
+                    address = add_hex(value_of_X, target_instr.address.zfill(6)).zfill(4)
+                    value = self.memory_set.get_memory(address)
+                    self.registers.set_register('A', value)
 
                 #LDCH if only A register
                 else:
                     address = target_instr.address
-                    value = value + self.memory_set.get_memory(address)
-                    address = int2hex(hex2int(address,16) + 1, 16)
-                    self.registers.set_register(name[2], value)
+                    value = self.memory_set.get_memory(address)
+                    self.registers.set_register('A', value)
                 
             elif instruction_token == 14: #MUL
                 instr_line = self.__getinstruction__(arguments[0])
@@ -455,11 +453,7 @@ def int2hex(number, bits):
         return None
 
 def ascii2hex(val):
-    try:
-        hex_val = hex(val)[2:]
-        return hex(val)[2:]
-    except:
-        return None
+    return hex(ord(val))[2:].upper()
 
 def add_hex(x, y):
     #Adds two hex numbers - NOTE both numbers must have same number of bits 
