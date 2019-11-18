@@ -227,7 +227,26 @@ class Interpreter:
                 self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
-                pass
+                target_instr = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+                value = "" 
+                
+                #LDCH method if there is register X involved
+                if arguments[1] == 'X':
+                    value_of_X = self.registers.get_register('X')
+                    address = add_hex(value_of_X, instr_line.address.zfill(6)).zfill(4)
+
+                    value = value + self.memory_set.get_memory(address)
+                    address = int2hex(hex2int(address,16) + 1, 16)
+                    self.registers.set_register(name[2], value)
+
+                #LDCH if only A register
+                else:
+                    address = target_instr.address
+                    value = value + self.memory_set.get_memory(address)
+                    address = int2hex(hex2int(address,16) + 1, 16)
+                    self.registers.set_register(name[2], value)
+                
             elif instruction_token == 14: #MUL
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
