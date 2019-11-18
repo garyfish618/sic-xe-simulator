@@ -60,7 +60,6 @@ class Registery:
                 'X' : "000000",    #Index register
                 'L' : "000000",    #Linkage register (JSUB)
                 'PC': "000000",    #Program counter
-                'SW': "000000"     #Status word (Condition Code)
             }
         else:
             #3 additional registers, 24 bit length + 1 register 48 bit length
@@ -69,7 +68,6 @@ class Registery:
                 'X' : "000000",    #Index register
                 'L' : "000000",    #Linkage register (JSUB)
                 'PC': "000000",    #Program counter
-                'SW': "000000",    #Status word (Condition Code)
                 'B' : "000000",    #Base register; used for addressing
                 'S' : "000000",    #General working register
                 'T' : "000000",    #General working register

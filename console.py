@@ -4,8 +4,8 @@ from sim_interpreter import Interpreter
 from memory import Memory, Registery
 
 SIZE_OF_BYTE = 2 #Characters
-VALID_OPTIONS_SIMPLE = ["A", "X", "L", "PC", "SW"] #NOTE How should we handle a user trying to edit the PC register?
-VALID_OPTIONS_EXTENDED = ["A", "X", "L", "PC", "SW","B", "S", "T", "F"] #NOTE How should we handle a user trying to edit the PC register?
+VALID_OPTIONS_SIMPLE = ["A", "X", "L", "PC"] #NOTE How should we handle a user trying to edit the PC register?
+VALID_OPTIONS_EXTENDED = ["A", "X", "L", "PC","B", "S", "T", "F"] #NOTE How should we handle a user trying to edit the PC register?
 
 
 def clear_console():
