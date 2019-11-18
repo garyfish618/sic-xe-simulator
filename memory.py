@@ -14,21 +14,29 @@ class Memory:
     def get_memory(self, address):
         dec = hex2int(address,16)
 
+        if(dec == None):
+            return None
+
         if self.isSimple:
             if dec < 0 or dec > 4000:
-                return False
+                return None
             return self.memory[dec]
 
     def set_memory(self, address, byte):
-        dec = hex2int(address, 16)
+        dec_address = hex2int(address, 16)
+        dec_value   = hex2int(byte, 16)
+
+        if (dec_address == None or dec_value == None):
+            return False
+
         if self.isSimple:
-            if dec < 0 or dec > 4000:
+            if dec_address < 0 or dec_address > 4000:
                 return False
         else:
-            if dec < 0 or dec > 128000:
+            if dec_address < 0 or dec_address > 128000:
                 return False
         
-        self.memory[dec] = byte
+        self.memory[dec_address] = byte.upper()
         return  True
 
     def print_mem_line(self,address):
@@ -79,7 +87,13 @@ class Registery:
             return self.registers.get(reg)
 
     def set_register(self, reg, val):
+
         if reg in self.registers.keys():
+            #Check if valid value
+            dec = hex2int(val, 16)
+            if (dec == None):
+                return False
+
             if len(val) != 6:
                 val_length = 6 - len(val)
                 register = self.registers[reg]
@@ -103,13 +117,19 @@ class Registery:
 
 
 def hex2int(hexstr,bits): 
-    value = int(hexstr,16)
-    if value & (1 << (bits-1)):
-        value -= 1 << bits
-    return value
+    try:
+        value = int(hexstr,16)
+        if value & (1 << (bits-1)):
+            value -= 1 << bits
+        return value
+    except:
+        return None
 
 def int2hex(number, bits):
-    if number < 0:
-        return hex((1 << bits) + number)[2:]
-    else:
-        return hex(number)[2:].upper()
+    try:
+        if number < 0:
+            return hex((1 << bits) + number)[2:]
+        else:
+            return hex(number)[2:].upper()
+    except: 
+        return None

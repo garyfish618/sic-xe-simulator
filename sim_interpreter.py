@@ -385,19 +385,29 @@ class Interpreter:
     
 #converts from hex to 2's comp signed int
 def hex2int(hexstr,bits): 
-    value = int(hexstr,16)
-    if value & (1 << (bits-1)):
-        value -= 1 << bits
-    return value
+    try:
+        value = int(hexstr,16)
+        if value & (1 << (bits-1)):
+            value -= 1 << bits
+        return value
+    except:
+        return None
 
 def int2hex(number, bits):
-    if number < 0:
-        return hex((1 << bits) + number)[2:].upper()
-    else:
-        return hex(number)[2:].upper()
+      try:
+        if number < 0:
+            return hex((1 << bits) + number)[2:]
+        else:
+            return hex(number)[2:].upper()
+    except: 
+        return None
 
 def ascii2hex(val):
-    return hex(val)[2:]
+    try:
+        hex_val = hex(val)[2:]
+        return hex(val)[2:]
+    except:
+        return None
 
 def add_hex(x, y):
     #Adds two hex numbers - NOTE both numbers must have same number of bits 
