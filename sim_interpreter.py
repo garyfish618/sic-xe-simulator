@@ -446,7 +446,7 @@ def hex2int(hexstr,bits):
         return None
 
 def int2hex(number, bits):
-      try:
+    try:
         if number < 0:
             return hex((1 << bits) + number)[2:]
         else:
