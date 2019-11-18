@@ -90,7 +90,6 @@ class Registery:
 
                 for i in range(len(val)): # Right-most values to change
                     new_val += val[i]
-
                 self.registers[reg] = new_val
                 return True
             
@@ -103,10 +102,10 @@ class Registery:
             print(register)
 
 
-def hex2int(hex_val, bits):
-    value = int(hex_val,16)
-    if (int(hex_val,16) & (1 << (bits - 1))) != 0:
-        value = int(hex_val,16) - (1 << bits)
+def hex2int(hexstr,bits): 
+    value = int(hexstr,16)
+    if value & (1 << (bits-1)):
+        value -= 1 << bits
     return value
 
 def int2hex(number, bits):
