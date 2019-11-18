@@ -164,7 +164,7 @@ class Interpreter:
             elif instruction_token == 2: #AND
                 pass
             elif instruction_token == 3: #COMP
-                pass
+                return comp(self.__getinstruction__(arguments[0]), self.__getinstruction__(arguments[1]))
             elif instruction_token == 4: #DIV
                 pass
             elif instruction_token == 5: #J
@@ -198,16 +198,22 @@ class Interpreter:
             elif instruction_token == 16: #RD
                 pass
             elif instruction_token == 17: #RSUB
-                pass
+                #PC = L
+                self.registers.set_register('PC', self.registers.get_register('L'))
             elif instruction_token == 18: #STA
-                pass
+                #M = A
+                self.registers.set_register('M', self.registers.get_register('A'))
             elif instruction_token == 19: #STCH
+                #M[RMB] = A[RMB]
                 pass
             elif instruction_token == 20: #STL
-                pass
+                #M = L
+                self.registers.set_register('M', self.registers.get_register('L'))
             elif instruction_token == 21: #STSW
                 pass
             elif instruction_token == 22: #STX
+                #M = X
+                self.registers.set_register('M', self.registers.get_register('X'))
                 pass
             elif instruction_token == 23: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
@@ -312,3 +318,11 @@ def sub_hex(x, y):
         raise Exception("Illegal sub_hex")
 
     return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4),len(x) * 4)
+
+def comp(x, y):
+    if x == y:
+        return 0
+    elif x > y:
+        return 1
+    elif x < y :
+        return -1
