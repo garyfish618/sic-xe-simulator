@@ -168,7 +168,7 @@ class Interpreter:
             elif instruction_token == 2: #AND
                 pass
             elif instruction_token == 3: #COMP
-                return comp(self.__getinstruction__(arguments[0]), self.__getinstruction__(arguments[1]))
+                return comp(self.registers.get_register('A'), self.__getinstruction__(arguments[1]))
             elif instruction_token == 4: #DIV
                 pass
             elif instruction_token == 5: #J
@@ -234,7 +234,14 @@ class Interpreter:
             elif instruction_token == 15: #OR
                 pass
             elif instruction_token == 16: #RD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+                
+                print("Please enter in one byte of data (Hex) :")
+                self.userin = input().lower()
+                self.userin = self.userin[0]
+                self.registers.set_register('A', self.userin)
+
             elif instruction_token == 17: #RSUB
                 #PC = L
                 self.registers.set_register('PC', self.registers.get_register('L'))
@@ -243,7 +250,8 @@ class Interpreter:
                 self.registers.set_register('M', self.registers.get_register('A'))
             elif instruction_token == 19: #STCH
                 #M[RMB] = A[RMB]
-                pass
+                aRMB = self.registers.get_register('A')[-1]
+                self.registers.set_register('M', self.registers.get_register('M')[:-1] + aRMB )
             elif instruction_token == 20: #STL
                 #M = L
                 self.registers.set_register('M', self.registers.get_register('L'))

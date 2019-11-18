@@ -1,7 +1,7 @@
         START   0500
         LDA     NUM1
         LDX     VALX
-        ADD     NUM1,X
+        TD      TEMP
 
 
 NUM1    WORD    -50
@@ -9,4 +9,3 @@ NUM1    WORD    -50
 NUM2    WORD    40
 
 VALX    WORD    6
-
