@@ -185,7 +185,26 @@ class Interpreter:
 
         
             elif instruction_token == 2: #AND
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+                address = instr_line.address
+
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
+
+                memory_string_hex = ""
+                
+                for i in range(size_of_val):
+                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                    address = add_hex(address, "0001").zfill(4)
+                
+                int_val_of_A = hex2int(self.registers.get_register('A'),16)
+                int_val_of_mem = hex2int(memory_string_hex,16)
+                
+                result = int2hex(int_val_of_A & int_val_of_mem,16)
+                self.registers.set_register('A', result)
+                
+
             elif instruction_token == 3: #COMP
                 pass
             elif instruction_token == 4: #DIV
@@ -256,10 +275,10 @@ class Interpreter:
 
 
             elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
-                address = target_instr.address
 
                 target_instr = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(target_instr)
+                address = target_instr.address
                 value = ""
 
                 #If using index based addressing
