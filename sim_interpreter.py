@@ -323,7 +323,24 @@ class Interpreter:
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
             elif instruction_token == 15: #OR
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+                address = instr_line.address
+
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
+
+                memory_string_hex = ""
+                for i in range(size_of_val):
+                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                    address = add_hex(address, "0001").zfill(4)
+
+                int_val_of_A = hex2int(self.registers.get_register('A'), 16)
+                int_val_of_mem = hex2int(memory_string_hex, 16)
+
+                result = int2hex(int_val_of_A | int_val_of_mem, 16)
+                self.registers.set_register('A', result) 
+
             elif instruction_token == 16: #RD
                 pass
             elif instruction_token == 17: #RSUB
@@ -385,7 +402,26 @@ class Interpreter:
                         print("Invalid decision")
 
             elif instruction_token == 25: #TIX
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                size_of_val = self.__determinesize__(instr_line)
+                address = instr_line.address
+                memory_string_hex = ""
+
+                for i in range(size_of_val):
+                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                    address = add_hex(address, "0001").zfill(4)
+
+                int_val_of_X = hext2int(self.registers.get_register('X'), 16)
+                int_val_of_X += 1
+                int_val_of_mem = hex2int(memory_string_hex, 16)
+
+                if (int_val_of_X < int_val_of_mem):
+                    self.condition_word = conditions[1]
+                elif (int_val_of_X > int_val_of_mem):
+                    self.condition_word = conditions[2]
+                else:
+                    self.condition_word = conditions[3]
+                    
             elif instruction_token == 26: #WD
                 instr_line = self.__getinstruction__(arguments[0])
                 device_id = self.memory_set.get_memory(instr_line.address)
