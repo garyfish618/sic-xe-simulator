@@ -293,6 +293,8 @@ class Interpreter:
                     address = int2hex(hex2int(address,16) + 1, 16)
             elif instruction_token == 19: #STCH
                 #M[RMB] = A[RMB]
+                target_instr = self.__getinstruction__(arguments[0])
+                address = target_instr.address
                 aRMB = self.registers.get_register('A')[-2] + self.registers.get_register('A')[-1]
                 self.memory_set.set_memory(address, aRMB)
             elif instruction_token == 20: #STL
@@ -473,3 +475,4 @@ def comp(x, y):
 def bytesplit(hexString):
     data = hexString
     byteList = [data[i:i+2] for i in range(0, len(data), 2)]
+    return byteList
