@@ -9,4 +9,3 @@ NUM1    WORD    -50
 NUM2    WORD    40
 
 VALX    WORD    6
-

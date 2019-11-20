@@ -206,7 +206,16 @@ class Interpreter:
                 
 
             elif instruction_token == 3: #COMP
-                pass
+                size_of_val = self.__determinesize__(instr_line)                
+                address = instr_line.address
+                memory_string_hex = ""
+                for i in range(size_of_val):
+                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+                    address = add_hex(address, "0001").zfill(4)
+
+                self.condition_word = conditions[comp(self.registers.get_register('A'), memory_string_hex)]
+                
+
             elif instruction_token == 4: #DIV
                 
                 instr_line = self.__getinstruction__(arguments[0])
@@ -342,8 +351,17 @@ class Interpreter:
                 self.registers.set_register('A', result) 
 
             elif instruction_token == 16: #RD
-                pass
+                instr_line = self.__getinstruction__(arguments[0])
+                device_id = self.memory_set.get_memory(instr_line.address)
+                print("Device " + device_id + " INPUT:" )
+                print("Please enter in one byte of data (Hex) :")
+                self.userin = input().upper()
+                self.userin = self.userin[0:2]
+                self.registers.set_register('A', self.userin)
+
             elif instruction_token == 17: #RSUB
+
+                #PC = L
                 self.registers.set_register('PC', self.registers.get_register('L'))
 
                 if self.previous_pointer == -1:
@@ -352,14 +370,37 @@ class Interpreter:
                 self.instruction_pointer = self.previous_pointer
 
             elif instruction_token == 18: #STA
-                pass
+                #M = A
+                target_instr = self.__getinstruction__(arguments[0])
+                value = self.registers.get_register('A')
+                address = target_instr.address
+                for byte in bytesplit(value):
+                    self.memory_set.set_memory(address, byte)
+                    address = int2hex(hex2int(address,16) + 1, 16)
             elif instruction_token == 19: #STCH
-                pass
+                #M[RMB] = A[RMB]
+                target_instr = self.__getinstruction__(arguments[0])
+                address = target_instr.address
+                aRMB = self.registers.get_register('A')[-2] + self.registers.get_register('A')[-1]
+                self.memory_set.set_memory(address, aRMB)
             elif instruction_token == 20: #STL
-                pass
+                #M = L
+                target_instr = self.__getinstruction__(arguments[0])
+                value = self.registers.get_register('L')
+                address = target_instr.address
+                for byte in bytesplit(value):
+                    self.memory_set.set_memory(address, byte)
+                    address = int2hex(hex2int(address,16) + 1, 16)
             elif instruction_token == 21: #STSW
                 pass
             elif instruction_token == 22: #STX
+                #M = X
+                target_instr = self.__getinstruction__(arguments[0])
+                value = self.registers.get_register('X')
+                address = target_instr.address
+                for byte in bytesplit(value):
+                    self.memory_set.set_memory(address, byte)
+                    address = int2hex(hex2int(address,16) + 1, 16)
                 pass
             elif instruction_token == 23: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
@@ -514,3 +555,17 @@ def sub_hex(x, y):
         raise Exception("Illegal sub_hex")
 
     return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4),len(x) * 4)
+
+def comp(x, y):
+    x = hex2int(x, '16')
+    x = hex2int(y, '16')
+    if x == y:
+        return 2
+    elif x > y:
+        return 1
+    elif x < y :
+        return 0
+def bytesplit(hexString):
+    data = hexString
+    byteList = [data[i:i+2] for i in range(0, len(data), 2)]
+    return byteList
