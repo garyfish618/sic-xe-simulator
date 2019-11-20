@@ -70,7 +70,9 @@ class Interpreter:
                         self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
 
             elif self.determine_instruction(instruction.name) == -1:
-                raise Exception("Invalid instruction name on line")  # TODO provide line number once implemented in parser
+                print("ERROR: Invalid instruction name on line " + str(instruction.line_num))
+                print("Exiting interpreter")
+                self.instruction_pointer = -1
 
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
                 # characters
@@ -98,15 +100,11 @@ class Interpreter:
                 return
 
         #Find next instruction and set PC to its address
-        next_instruction_pointer = 1
-        while self.instructions[self.instruction_pointer + next_instruction_pointer].name in directives:
+        next_instruction_pointer = self.instruction_pointer + 1
+        while ((next_instruction_pointer < len(self.instructions)) and (self.instructions[next_instruction_pointer].name in directives)):
             next_instruction_pointer += 1
-            print(self.instruction_pointer + next_instruction_pointer) 
-            if(self.instruction_pointer + next_instruction_pointer >= len(self.instructions)):
-                next_instruction_pointer = -1 # No next instruction
-                break 
 
-        if(next_instruction_pointer != -1):
+        if(next_instruction_pointer < len(self.instructions)):
             self.registers.set_register('PC', self.instructions[self.instruction_pointer + next_instruction_pointer].address)
         
 
@@ -115,9 +113,10 @@ class Interpreter:
         instruction_name = instruction_line.name
         label = instruction_line.label
         arguments = instruction_line.args
+        line_num = instruction_line.line_num
 
         instruction_token = self.determine_instruction(instruction_name)
-        self.token_utilizer(instruction_token, arguments, label, instruction_name)
+        self.token_utilizer(instruction_token, arguments, label, instruction_name, line_num)
 
     def determine_instruction(self, instruction_name):
         instruction_set = {}
@@ -158,7 +157,7 @@ class Interpreter:
 
         return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
 
-    def token_utilizer(self, instruction_token, arguments, label, name):
+    def token_utilizer(self, instruction_token, arguments, label, name, line_num):
 
         if (self.is_simple):
 
@@ -241,7 +240,10 @@ class Interpreter:
                 new_index = self.__getindex__(arguments[0])
                 
                 if new_index == -1:
-                    raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+                    print("ERROR: Illegal jump to label on line " + str(line_num))
+                    print("Exiting interpreter")
+                    self.instruction_pointer = -1
+                    return
 
                 self.instruction_pointer = new_index
 
@@ -251,7 +253,12 @@ class Interpreter:
                     new_index = self.__getindex__(arguments[0])
                 
                     if new_index == -1:
-                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+                        print("ERROR: Illegal jump to label on line " + str(line_num))
+                        print("Exiting interpreter")
+                        self.instruction_pointer = -1
+                        return
+
+                    
                     self.instruction_pointer = new_index
 
 
@@ -260,7 +267,10 @@ class Interpreter:
                     new_index = self.__getindex__(arguments[0])
                 
                     if new_index == -1:
-                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+                        print("ERROR: Illegal jump to label on line " + str(line_num))
+                        print("Exiting interpreter")
+                        self.instruction_pointer = -1
+                        return
                     self.instruction_pointer = new_index
 
             elif instruction_token == 8: #JLT
@@ -268,7 +278,10 @@ class Interpreter:
                     new_index = self.__getindex__(arguments[0])
                 
                     if new_index == -1:
-                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+                        print("ERROR: Illegal jump to label on line " + str(line_num))
+                        print("Exiting interpreter")
+                        self.instruction_pointer = -1
+                        return
 
                     self.instruction_pointer = new_index
 
@@ -280,7 +293,10 @@ class Interpreter:
                 self.instruction_pointer = new_index
 
                 if new_index == -1:
-                        raise Exception("Illegal jump to label on line ") #TODO implement line numbers
+                        print("ERROR: Illegal jump to label on line " + str(line_num))
+                        print("Exiting interpreter")
+                        self.instruction_pointer = -1
+                        return
 
 
             elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
@@ -365,7 +381,10 @@ class Interpreter:
                 self.registers.set_register('PC', self.registers.get_register('L'))
 
                 if self.previous_pointer == -1:
-                    raise Exception("Illegal RSUB on line") #TODO Implement line numbers
+                        print("ERROR: Illegal return on line " + str(line_num))
+                        print("Exiting interpreter")
+                        self.instruction_pointer = -1
+                        return
 
                 self.instruction_pointer = self.previous_pointer
 
@@ -474,6 +493,7 @@ class Interpreter:
         for instr in self.instructions:
             if instr.label == label:
                 return instr
+        raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
     def __getoffseaddress__(self, start_address):
         #Returns an offset address when an instruction is using indexed addressing
@@ -484,7 +504,6 @@ class Interpreter:
 
     def __getindex__(self, label):
         #Returns position of instruction in instruction array - useful for jump instructions
-
         for i in range(len(self.instructions)):
             if self.instructions[i].label == label:
                 return i

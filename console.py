@@ -43,7 +43,15 @@ class Console:
                 "exit\t\t\tExits the simulator\n"
                 )
             elif args[0] == "credits":
-                print("Rolling Credits")
+                clear_console()
+                print("----------Credits----------")
+                print("Product of Bagel Bois 2019")
+                print("Gary Fishell - Console and Interpreter Architecture Design")
+                print("Salim Aweys - Memory and Register management")
+                print("Lauren DeLeon - Parser Design and Documentation")
+                print("Kristian Bunda - Memory/Register Design and Assembler Directives management")
+                print("SIC and SICXE Instruction implementation - Collective effort")
+                print("---------------------------")
 
             elif args[0] == "parse":
                 if len(args) != 2:
