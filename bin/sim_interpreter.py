@@ -276,7 +276,7 @@ class Interpreter:
 
 
             elif instruction_token == 7: #JGT
-                if self.condition_word == conditions[2]:
+                if self.condition_word == conditions[1]:
                     new_index = self.__getindex__(arguments[0])
                 
                     if new_index == -1:
@@ -287,7 +287,7 @@ class Interpreter:
                     self.instruction_pointer = new_index
 
             elif instruction_token == 8: #JLT
-                if self.condition_word == conditions[2]:
+                if self.condition_word == conditions[0]:
                     new_index = self.__getindex__(arguments[0])
                 
                     if new_index == -1:
@@ -495,15 +495,15 @@ class Interpreter:
                 int_val_of_mem = hex2int(memory_string_hex)
 
                 if (int_val_of_X < int_val_of_mem):
-                    self.condition_word = conditions[1]
+                    self.condition_word = conditions[0]
                     val_X = int2hex(int_val_of_X, 16)
                     self.registers.set_register('X', val_X)
                 elif (int_val_of_X > int_val_of_mem):
-                    self.condition_word = conditions[2]
+                    self.condition_word = conditions[1]
                     val_X = int2hex(int_val_of_X, 16)
                     self.registers.set_register('X', val_X)
                 else:
-                    self.condition_word = conditions[3]
+                    self.condition_word = conditions[2]
                     val_X = int2hex(int_val_of_X, 16)
                     self.registers.set_register('X', val_X)
 
