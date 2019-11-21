@@ -1,0 +1,12 @@
+Instructions to be tested:
+- AND
+- OR
+
+Instruction behavior to be tested:
+- Non existing label
+- X based index addressing for each Instruction
+- Bitwise comparisons for:
+    - Negative and a positive
+    - Positive and 0
+    - Negative and 0
+
