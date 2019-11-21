@@ -315,7 +315,7 @@ class Interpreter:
 
                 for i in range(size_of_val):
                     value = value + self.memory_set.get_memory(address)
-                    address = int2hex(hex2int(address) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
                 self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
@@ -398,7 +398,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address,16) + 1)
+                    address = int2hex(hex2int(address,16) + 1).zfill(4)
             elif instruction_token == 19: #STCH
                 #M[RMB] = A[RMB]
                 target_instr = self.__getinstruction__(arguments[0])
@@ -412,7 +412,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
             elif instruction_token == 21: #STX
                 #M = X
                 target_instr = self.__getinstruction__(arguments[0])
@@ -420,7 +420,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
                 pass
             elif instruction_token == 22: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
