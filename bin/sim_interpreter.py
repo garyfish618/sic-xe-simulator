@@ -207,7 +207,7 @@ class Interpreter:
                 
 
             elif instruction_token == 3: #COMP
-                
+                instr_line = self.__getinstruction__(arguments[0])  
                 size_of_val = self.__determinesize__(instr_line)                
                 address = instr_line.address
                 memory_string_hex = ""
@@ -218,8 +218,7 @@ class Interpreter:
                 self.condition_word = conditions[comp(self.registers.get_register('A'), memory_string_hex)]
                 
 
-            elif instruction_token == 4: #DIV
-                instr_line = self.__getinstruction__(arguments[0])        
+            elif instruction_token == 4: #DIV       
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
                 address = instr_line.address
