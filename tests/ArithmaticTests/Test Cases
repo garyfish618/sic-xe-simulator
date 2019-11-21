@@ -1,0 +1,48 @@
+Instructions to be tested:
+- ADD
+    PASS : - 10 int
+    PASS : 0 int
+    PASS :  15  BYTE    
+    PASS : 16 BYTE
+    PASS : 0   BYTE
+    FAIL : -1  BYTE
+Execture instruction broken?
+C:\DEV\sic-xe-simulator\tests\ArithmaticTests\Arithmetic.asm
+
+    ADD     NUM1
+    ADD     NUM2
+    ADD     NUM3
+    ADD     NUM4
+    ADD     NUM5
+    ADD     NUM6
+
+
+- SUB
+    - 10 int
+    0 int
+    15  BYTE    
+    16 BYTE
+    0   BYTE
+    -1  BYTE
+- MUL
+        - 10 int
+    0 int
+    15  BYTE    
+    16 BYTE
+    0   BYTE
+    -1  BYTE
+- DIV
+    - 10 int
+    0 int
+    15  BYTE    
+    16 BYTE
+    0   BYTE
+    -1  BYTE
+
+Instruction behavior to be tested:
+- Non existing label
+- Negative number and positive number arithmetic
+- Negative number and 0 arithmetic
+- Positive number and 0 arithmetic
+- X based index addressing for each instruction
+
