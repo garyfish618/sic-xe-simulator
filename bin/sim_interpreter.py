@@ -246,7 +246,7 @@ class Interpreter:
                 memory_string_int = hex2int(memory_string_hex)
                 value_of_A_hex = self.registers.get_register('A')
                 value_of_A_int = hex2int(value_of_A_hex)
-                value_of_A_int = value_of_A_int / memory_string_int
+                value_of_A_int = int(value_of_A_int / memory_string_int)
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
             elif instruction_token == 5: #J
