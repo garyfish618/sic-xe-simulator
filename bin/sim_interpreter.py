@@ -409,8 +409,10 @@ class Interpreter:
             elif instruction_token == 18: #STA
                 #M = A
                 target_instr = self.__getinstruction__(arguments[0])
-                value = self.registers.get_register('A')
                 address = target_instr.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
+                value = self.registers.get_register('A')
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address,16) + 1).zfill(4)
@@ -418,21 +420,27 @@ class Interpreter:
                 #M[RMB] = A[RMB]
                 target_instr = self.__getinstruction__(arguments[0])
                 address = target_instr.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
                 aRMB = self.registers.get_register('A')[-2] + self.registers.get_register('A')[-1]
                 self.memory_set.set_memory(address, aRMB)
             elif instruction_token == 20: #STL
                 #M = L
                 target_instr = self.__getinstruction__(arguments[0])
-                value = self.registers.get_register('L')
                 address = target_instr.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
+                value = self.registers.get_register('L')
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address) + 1, 16).zfill(4)
             elif instruction_token == 21: #STX
                 #M = X
                 target_instr = self.__getinstruction__(arguments[0])
-                value = self.registers.get_register('X')
                 address = target_instr.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(address)
+                value = self.registers.get_register('X')
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address) + 1, 16).zfill(4)
