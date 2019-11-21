@@ -64,6 +64,13 @@ class Interpreter:
 
                 elif instruction.name == "WORD":
                     value = int2hex(int (instruction.args[0]), 16)
+                    if (int(instruction.args[0]) < 0):
+                        num_missing = 6 - len(value)
+                        if(num_missing == 2):
+                            new_val = "FF" + value
+                            value = new_val
+                            
+
                     value = value.zfill(6)
                     for i in range(0,6,2):
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
