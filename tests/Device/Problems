@@ -1,0 +1,7 @@
+TD, RD, WD do not support indexed addressing
+RD and WD do not check condition word before running
+Arithmetic broken with byte 
+JSUB doesnt execute first line but works for the rest
+Remove STSW
+Problem with PC holding correct address
+ - PC Not holding next instruction after JSUB

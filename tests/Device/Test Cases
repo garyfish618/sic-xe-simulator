@@ -1,0 +1,12 @@
+Instructions to be tested:
+- TD
+- RD
+- WD
+
+Instruction behavior to be tested:
+- Non existing label
+- X based index addressing for each instruction
+- Test if device ID still working for a WORD on all instructions
+- Invalid input for WD
+- Invalid input for TD
+
