@@ -28,7 +28,7 @@ def read_file(file):
             content = f.readlines()
             for line in content:
                 line_num += 1
-                if line.isspace():
+                if line.isspace() or line[0] == '.':
                     continue
                 input_list = re.split(',|\s+',line) 
                 #Need to always put arguments in array regardless of one or two.

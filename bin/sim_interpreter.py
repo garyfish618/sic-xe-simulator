@@ -28,6 +28,8 @@ class Interpreter:
             if instruction.name == "START":
                 self.next_address = instruction.args[0]
                 continue
+            if instruction.name == "END":
+                continue
 
             instruction.address = self.next_address
 
@@ -65,13 +67,11 @@ class Interpreter:
                 elif instruction.name == "WORD":
                     value = int2hex(int (instruction.args[0]), 16)
                     if (int(instruction.args[0]) < 0):
-                        num_missing = 6 - len(value)
-                        if(num_missing == 2):
-                            new_val = "FF" + value
-                            value = new_val
+                        value = value.rjust(6, 'F')
                             
+                    else:
+                        value = value.zfill(6)
 
-                    value = value.zfill(6)
                     for i in range(0,6,2):
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
                         self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
@@ -126,7 +126,6 @@ class Interpreter:
             next_instruction_pointer += 1
 
         if(next_instruction_pointer < len(self.instructions)):
-            print(self.instructions[next_instruction_pointer].address)
             self.registers.set_register('PC', self.instructions[next_instruction_pointer].address)
 
     def determine_instruction(self, instruction_name):
@@ -189,11 +188,19 @@ class Interpreter:
                     address = add_hex(address, "0001").zfill(4)
 
                 memory_string_int = hex2int(memory_string_hex)
-                print(memory_string_int)
                 value_of_A_hex = self.registers.get_register('A')
                 value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = memory_string_int + value_of_A_int
-                self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
+
+                new_hex = int2hex(value_of_A_int, 16)
+                
+                if(value_of_A_int >= 0):
+                    new_hex = new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
 
         
             elif instruction_token == 2: #AND
@@ -210,11 +217,20 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
                 
-                int_val_of_A = hex2int(self.registers.get_register('A'),16)
-                int_val_of_mem = hex2int(memory_string_hex,16)
-                
-                result = int2hex(int_val_of_A & int_val_of_mem,16)
-                self.registers.set_register('A', result)
+                int_val_of_A = hex2int(self.registers.get_register('A'))
+                int_val_of_mem = hex2int(memory_string_hex)
+                int_val_of_A = int_val_of_A & int_val_of_mem
+
+                new_hex = int2hex(int_val_of_A,16)
+
+                if(int_val_of_A >= 0):
+                    new_hex = new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
+
                 
 
             elif instruction_token == 3: #COMP
@@ -246,8 +262,18 @@ class Interpreter:
                 memory_string_int = hex2int(memory_string_hex)
                 value_of_A_hex = self.registers.get_register('A')
                 value_of_A_int = hex2int(value_of_A_hex)
-                value_of_A_int = value_of_A_int / memory_string_int
-                self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
+                value_of_A_int = int(value_of_A_int / memory_string_int)
+
+                new_hex = int2hex(value_of_A_int, 16)
+
+                if(value_of_A_int >= 0):
+                    new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
+
 
             elif instruction_token == 5: #J
                 new_index = self.__getindex__(arguments[0])
@@ -358,7 +384,15 @@ class Interpreter:
                 value_of_A_hex = self.registers.get_register('A')
                 value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = memory_string_int * value_of_A_int
-                self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
+                new_hex = int2hex(value_of_A_int, 16)
+
+                if(value_of_A_int >= 0):
+                    new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
 
             elif instruction_token == 15: #OR
                 instr_line = self.__getinstruction__(arguments[0])
@@ -375,12 +409,20 @@ class Interpreter:
 
                 int_val_of_A = hex2int(self.registers.get_register('A'))
                 int_val_of_mem = hex2int(memory_string_hex)
+                int_val_of_A = int_val_of_A | int_val_of_mem
 
-                result = int2hex(int_val_of_A | int_val_of_mem)
-                self.registers.set_register('A', result) 
+                new_hex = int2hex(int_val_of_A,16)
+
+                if(int_val_of_A >= 0):
+                    new_hex = new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
 
             elif instruction_token == 16: #RD
-                if (self.condition_word != "<"):
+                if (self.condition_word != "LT"):
                     return
                 instr_line = self.__getinstruction__(arguments[0])
                 address = instr_line.address
@@ -464,7 +506,15 @@ class Interpreter:
                 value_of_A_hex = self.registers.get_register('A')
                 value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = value_of_A_int - memory_string_int
-                self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
+                new_hex = int2hex(value_of_A_int, 16)
+
+                if(value_of_A_int >= 0):
+                    new_hex.zfill(size_of_val * 2)
+
+                else:
+                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+
+                self.registers.set_register('A', new_hex)
                     
             elif instruction_token == 23: #TD
                 instr_line = self.__getinstruction__(arguments[0])
@@ -519,7 +569,7 @@ class Interpreter:
                 
                     
             elif instruction_token == 25: #WD
-                if (self.condition_word != "<"):
+                if (self.condition_word != "LT"):
                     return
                 instr_line = self.__getinstruction__(arguments[0])
                 address = instr_line.address
@@ -563,9 +613,7 @@ class Interpreter:
         
         elif instr.name == directives[2]:
             if instr.args[0][0] == 'C':
-                char_array = instr.args[0].split("'")
-                for ch in char_array:
-                    size += 1
+               size = len(instr.args[0]) - 3
             else:
                 size = 1
             
@@ -594,7 +642,7 @@ def hex2int(hexstr):
 def int2hex(number, bits):
     try:
         if number < 0:
-            return hex((1 << bits) + number)[2:]
+            return hex((1 << bits) + number)[2:].upper()
         else:
             return hex(number)[2:].upper()
     except: 
@@ -630,3 +678,4 @@ def bytesplit(hexString):
     data = hexString
     byteList = [data[i:i+2] for i in range(0, len(data), 2)]
     return byteList
+
