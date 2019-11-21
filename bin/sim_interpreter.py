@@ -333,7 +333,7 @@ class Interpreter:
             elif instruction_token == 14: #MUL
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
-                address = target_instr.address
+                address = instr_line.address
 
                 #If using index based addressing
                 if arguments[1] == 'X':
@@ -425,7 +425,7 @@ class Interpreter:
             elif instruction_token == 22: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
-                address = target_instr.address
+                address = instr_line.address
 
                 #If using index based addressing
                 if arguments[1] == 'X':
@@ -472,7 +472,7 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                int_val_of_X = hext2int(self.registers.get_register('X'), 16)
+                int_val_of_X = hext2int(self.registers.get_register('X'))
                 int_val_of_X += 1
                 int_val_of_mem = hex2int(memory_string_hex)
 
