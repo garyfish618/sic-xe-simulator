@@ -105,7 +105,7 @@ class Interpreter:
             next_instruction_pointer += 1
 
         if(next_instruction_pointer < len(self.instructions)):
-            self.registers.set_register('PC', self.instructions[self.instruction_pointer + next_instruction_pointer].address)
+            self.registers.set_register('PC', self.instructions[next_instruction_pointer].address)
         
 
         instruction_line = self.instructions[self.instruction_pointer]
@@ -114,6 +114,8 @@ class Interpreter:
         label = instruction_line.label
         arguments = instruction_line.args
         line_num = instruction_line.line_num
+
+        print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
         self.token_utilizer(instruction_token, arguments, label, instruction_name, line_num)
