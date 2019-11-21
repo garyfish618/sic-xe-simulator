@@ -233,9 +233,9 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
                     
-                memory_string_int = hex2int(memory_string_hex, 16)
+                memory_string_int = hex2int(memory_string_hex)
                 value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex, 16)
+                value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = value_of_A_int / memory_string_int
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
