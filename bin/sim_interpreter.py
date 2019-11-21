@@ -178,9 +178,10 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                memory_string_int = hex2int(memory_string_hex, 16)
+                memory_string_int = hex2int(memory_string_hex)
+                print(memory_string_int)
                 value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex, 16)
+                value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = memory_string_int + value_of_A_int
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
@@ -314,7 +315,7 @@ class Interpreter:
 
                 for i in range(size_of_val):
                     value = value + self.memory_set.get_memory(address)
-                    address = int2hex(hex2int(address,16) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16)
                 self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
@@ -343,9 +344,9 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                memory_string_int = hex2int(memory_string_hex, 16)
+                memory_string_int = hex2int(memory_string_hex)
                 value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex, 16)
+                value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = memory_string_int * value_of_A_int
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
 
@@ -362,10 +363,10 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                int_val_of_A = hex2int(self.registers.get_register('A'), 16)
-                int_val_of_mem = hex2int(memory_string_hex, 16)
+                int_val_of_A = hex2int(self.registers.get_register('A'))
+                int_val_of_mem = hex2int(memory_string_hex)
 
-                result = int2hex(int_val_of_A | int_val_of_mem, 16)
+                result = int2hex(int_val_of_A | int_val_of_mem)
                 self.registers.set_register('A', result) 
 
             elif instruction_token == 16: #RD
@@ -397,7 +398,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address,16) + 1, 16)
+                    address = int2hex(hex2int(address,16) + 1)
             elif instruction_token == 19: #STCH
                 #M[RMB] = A[RMB]
                 target_instr = self.__getinstruction__(arguments[0])
@@ -411,7 +412,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address,16) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16)
             elif instruction_token == 21: #STSW
                 pass
             elif instruction_token == 22: #STX
@@ -421,7 +422,7 @@ class Interpreter:
                 address = target_instr.address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address,16) + 1, 16)
+                    address = int2hex(hex2int(address) + 1, 16)
                 pass
             elif instruction_token == 23: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
@@ -437,10 +438,10 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                memory_string_int = hex2int(memory_string_hex, 16)
+                memory_string_int = hex2int(memory_string_hex)
 
                 value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex, 16)
+                value_of_A_int = hex2int(value_of_A_hex)
                 value_of_A_int = value_of_A_int - memory_string_int
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
                     
@@ -475,7 +476,7 @@ class Interpreter:
 
                 int_val_of_X = hext2int(self.registers.get_register('X'), 16)
                 int_val_of_X += 1
-                int_val_of_mem = hex2int(memory_string_hex, 16)
+                int_val_of_mem = hex2int(memory_string_hex)
 
                 if (int_val_of_X < int_val_of_mem):
                     self.condition_word = conditions[1]
@@ -542,8 +543,9 @@ class Interpreter:
 
     
 #converts from hex to 2's comp signed int
-def hex2int(hexstr,bits): 
+def hex2int(hexstr): 
     try:
+        bits = len(hexstr) * 4
         value = int(hexstr,16)
         if value & (1 << (bits-1)):
             value -= 1 << bits
@@ -568,18 +570,18 @@ def add_hex(x, y):
     size = 0
     if len(x) != len(y):
         raise Exception("Illegal add_hex")
-    return int2hex(hex2int(x, len(x) * 4) + hex2int(y, len(y) * 4),len(x) * 4)
+    return int2hex(hex2int(x) + hex2int(y),len(x) * 4)
 
 def sub_hex(x, y):
     size = 0
     if len(x) != len(y):
         raise Exception("Illegal sub_hex")
 
-    return int2hex(hex2int(x, len(x) * 4) - hex2int(y, len(y) * 4),len(x) * 4)
+    return int2hex(hex2int(x) - hex2int(y),len(x) * 4)
 
 def comp(x, y):
-    x = hex2int(x, '16')
-    x = hex2int(y, '16')
+    x = hex2int(x)
+    y = hex2int(y)
     if x == y:
         return 2
     elif x > y:
