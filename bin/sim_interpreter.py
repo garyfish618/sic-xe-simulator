@@ -38,10 +38,10 @@ class Interpreter:
 
                 if instruction.name == "BYTE":
                     value = ""
-                    str = ""
+                    stringname = ""
                     if instruction.args[0][0] =='C':
-                        str = instruction.args[0].split("'")[1]
-                        for ch in str:
+                        stringname = instruction.args[0].split("'")[1]
+                        for ch in stringname:
                             value = value + ascii2hex(ch)
                     else:
                         value = instruction.args[0].split("'")[1]
