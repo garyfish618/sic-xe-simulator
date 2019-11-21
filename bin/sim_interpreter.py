@@ -371,7 +371,10 @@ class Interpreter:
 
             elif instruction_token == 16: #RD
                 instr_line = self.__getinstruction__(arguments[0])
-                device_id = self.memory_set.get_memory(instr_line.address)
+                address = instr_line.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(instr_line.address)
+                device_id = self.memory_set.get_memory(address)
                 print("Device " + device_id + " INPUT:" )
                 print("Please enter in one byte of data (Hex) :")
                 self.userin = input().upper()
@@ -445,7 +448,10 @@ class Interpreter:
                     
             elif instruction_token == 23: #TD
                 instr_line = self.__getinstruction__(arguments[0])
-                device_id = self.memory_set.get_memory(instr_line.address)
+                address = instr_line.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(instr_line.address)
+                device_id = self.memory_set.get_memory(address)
 
                 while(True):
                     print("Is device " + device_id + " ready? (y/n):")
@@ -472,7 +478,7 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                int_val_of_X = hext2int(self.registers.get_register('X'), 16)
+                int_val_of_X = hext2int(self.registers.get_register('X'))
                 int_val_of_X += 1
                 int_val_of_mem = hex2int(memory_string_hex)
 
@@ -485,7 +491,10 @@ class Interpreter:
                     
             elif instruction_token == 25: #WD
                 instr_line = self.__getinstruction__(arguments[0])
-                device_id = self.memory_set.get_memory(instr_line.address)
+                address = instr_line.address
+                if arguments[1] == 'X':
+                    address = self.__getoffseaddress__(instr_line.address)
+                device_id = self.memory_set.get_memory(address)
                 reg_A = self.registers.get_register("A")
                 print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
                 
