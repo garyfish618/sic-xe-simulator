@@ -99,14 +99,6 @@ class Interpreter:
                 print("End of file")
                 self.instruction_pointer = -1
                 return
-
-        #Find next instruction and set PC to its address
-        next_instruction_pointer = self.instruction_pointer + 1
-        while ((next_instruction_pointer < len(self.instructions)) and (self.instructions[next_instruction_pointer].name in directives)):
-            next_instruction_pointer += 1
-
-        if(next_instruction_pointer < len(self.instructions)):
-            self.registers.set_register('PC', self.instructions[next_instruction_pointer].address)
         
 
         instruction_line = self.instructions[self.instruction_pointer]
@@ -120,6 +112,15 @@ class Interpreter:
 
         instruction_token = self.determine_instruction(instruction_name)
         self.token_utilizer(instruction_token, arguments, label, instruction_name, line_num)
+
+        #Find next instruction and set PC to its address
+        next_instruction_pointer = self.instruction_pointer + 1
+        while ((next_instruction_pointer < len(self.instructions)) and (self.instructions[next_instruction_pointer].name in directives)):
+            next_instruction_pointer += 1
+
+        if(next_instruction_pointer < len(self.instructions)):
+            print(self.instructions[next_instruction_pointer].address)
+            self.registers.set_register('PC', self.instructions[next_instruction_pointer].address)
 
     def determine_instruction(self, instruction_name):
         instruction_set = {}
@@ -158,6 +159,8 @@ class Interpreter:
             instruction_set = {}
 
         return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
+
+        
 
     def token_utilizer(self, instruction_token, arguments, label, name, line_num):
 
