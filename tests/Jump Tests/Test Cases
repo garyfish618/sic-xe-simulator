@@ -1,0 +1,15 @@
+Instructions to be tested:
+- J
+- JLT
+- JEQ
+- JGT
+- JSUB
+- RSUB
+
+Instruction behavior to be tested:
+- Non existing label
+- No status in status word before JLT, JEQ, JGT
+- JSUB and RSUB jump to the correct spot in code
+- 
+- 
+

@@ -1,0 +1,13 @@
+Instructions to be tested:
+- ADD
+- SUB
+- MUL
+- DIV
+
+Instruction behavior to be tested:
+- Non existing label
+- Negative number and positive number arithmetic
+- Negative number and 0 arithmetic
+- Positive number and 0 arithmetic
+- X based index addressing for each instruction
+
