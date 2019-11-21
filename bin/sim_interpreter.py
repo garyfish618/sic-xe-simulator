@@ -380,6 +380,8 @@ class Interpreter:
                 self.registers.set_register('A', result) 
 
             elif instruction_token == 16: #RD
+                if (self.condition_word != "<"):
+                    return
                 instr_line = self.__getinstruction__(arguments[0])
                 address = instr_line.address
                 if arguments[1] == 'X':
@@ -509,6 +511,8 @@ class Interpreter:
                 
                     
             elif instruction_token == 25: #WD
+                if (self.condition_word != "<"):
+                    return
                 instr_line = self.__getinstruction__(arguments[0])
                 address = instr_line.address
                 if arguments[1] == 'X':
