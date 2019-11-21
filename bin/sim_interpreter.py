@@ -38,10 +38,10 @@ class Interpreter:
 
                 if instruction.name == "BYTE":
                     value = ""
-                    str = ""
+                    stringname = ""
                     if instruction.args[0][0] =='C':
-                        str = instruction.args[0].split("'")[1]
-                        for ch in str:
+                        stringname = instruction.args[0].split("'")[1]
+                        for ch in stringname:
                             value = value + ascii2hex(ch)
                     else:
                         value = instruction.args[0].split("'")[1]
@@ -73,6 +73,7 @@ class Interpreter:
                 print("ERROR: Invalid instruction name on line " + str(instruction.line_num))
                 print("Exiting interpreter")
                 self.instruction_pointer = -1
+                return
 
                 # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
                 # characters
@@ -145,13 +146,12 @@ class Interpreter:
                 "STA":18,
                 "STCH":19,
                 "STL":20,
-                "STSW":21,
-                "STX":22,
-                "SUB":23,
-                "TD":24,
-                "TIX":25,
-                "WD":26,
-                "END":27
+                "STX":21,
+                "SUB":22,
+                "TD":23,
+                "TIX":24,
+                "WD":25,
+                "END":26
             }
 
         else:
@@ -208,6 +208,7 @@ class Interpreter:
                 
 
             elif instruction_token == 3: #COMP
+                instr_line = self.__getinstruction__(arguments[0])  
                 size_of_val = self.__determinesize__(instr_line)                
                 address = instr_line.address
                 memory_string_hex = ""
@@ -218,8 +219,7 @@ class Interpreter:
                 self.condition_word = conditions[comp(self.registers.get_register('A'), memory_string_hex)]
                 
 
-            elif instruction_token == 4: #DIV
-                
+            elif instruction_token == 4: #DIV       
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
                 address = instr_line.address
@@ -413,9 +413,7 @@ class Interpreter:
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address) + 1, 16)
-            elif instruction_token == 21: #STSW
-                pass
-            elif instruction_token == 22: #STX
+            elif instruction_token == 21: #STX
                 #M = X
                 target_instr = self.__getinstruction__(arguments[0])
                 value = self.registers.get_register('X')
@@ -424,7 +422,7 @@ class Interpreter:
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address) + 1, 16)
                 pass
-            elif instruction_token == 23: #SUB
+            elif instruction_token == 22: #SUB
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
                 address = target_instr.address
@@ -445,7 +443,7 @@ class Interpreter:
                 value_of_A_int = value_of_A_int - memory_string_int
                 self.registers.set_register('A', int2hex(value_of_A_int, 16).zfill(6))
                     
-            elif instruction_token == 24: #TD
+            elif instruction_token == 23: #TD
                 instr_line = self.__getinstruction__(arguments[0])
                 device_id = self.memory_set.get_memory(instr_line.address)
 
@@ -464,7 +462,7 @@ class Interpreter:
                     else:
                         print("Invalid decision")
 
-            elif instruction_token == 25: #TIX
+            elif instruction_token == 24: #TIX
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
                 address = instr_line.address
@@ -485,7 +483,7 @@ class Interpreter:
                 else:
                     self.condition_word = conditions[3]
                     
-            elif instruction_token == 26: #WD
+            elif instruction_token == 25: #WD
                 instr_line = self.__getinstruction__(arguments[0])
                 device_id = self.memory_set.get_memory(instr_line.address)
                 reg_A = self.registers.get_register("A")
