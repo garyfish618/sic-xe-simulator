@@ -478,16 +478,25 @@ class Interpreter:
                     memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
                     address = add_hex(address, "0001").zfill(4)
 
-                int_val_of_X = hext2int(self.registers.get_register('X'))
-                int_val_of_X += 1
+                int_val_of_X = hex2int(self.registers.get_register('X'))
+                int_val_of_X += 1 
                 int_val_of_mem = hex2int(memory_string_hex)
 
                 if (int_val_of_X < int_val_of_mem):
                     self.condition_word = conditions[1]
+                    val_X = int2hex(int_val_of_X, 16)
+                    self.registers.set_register('X', val_X)
                 elif (int_val_of_X > int_val_of_mem):
                     self.condition_word = conditions[2]
+                    val_X = int2hex(int_val_of_X, 16)
+                    self.registers.set_register('X', val_X)
                 else:
                     self.condition_word = conditions[3]
+                    val_X = int2hex(int_val_of_X, 16)
+                    self.registers.set_register('X', val_X)
+
+                
+                
                     
             elif instruction_token == 25: #WD
                 instr_line = self.__getinstruction__(arguments[0])
