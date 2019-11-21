@@ -207,6 +207,7 @@ class Interpreter:
                 
 
             elif instruction_token == 3: #COMP
+                
                 size_of_val = self.__determinesize__(instr_line)                
                 address = instr_line.address
                 memory_string_hex = ""
@@ -218,7 +219,7 @@ class Interpreter:
                 
 
             elif instruction_token == 4: #DIV
-                
+                instr_line = self.__getinstruction__(arguments[0])        
                 instr_line = self.__getinstruction__(arguments[0])
                 size_of_val = self.__determinesize__(instr_line)
                 address = instr_line.address
@@ -579,7 +580,7 @@ def sub_hex(x, y):
 
 def comp(x, y):
     x = hex2int(x, '16')
-    x = hex2int(y, '16')
+    y = hex2int(y, '16')
     if x == y:
         return 2
     elif x > y:
