@@ -1,8 +1,7 @@
 class Memory: 
-    # isSimple = True    #False = SIC/XE
-    def __init__(self, isSimple):
-        self.isSimple = isSimple
-        if isSimple:
+    def __init__(self, isExtended):
+        self.isExtended = isExtended
+        if isExtended:
             self.memory = [None] * 4000      #size in bytes
             for i in range(4000):
                 self.memory[i] = "00"
@@ -16,8 +15,12 @@ class Memory:
 
         if(dec == None):
             return None
+        
+        if self.isExtended:
+            if dec < 0 or dec > 128000:
+                return None
 
-        if self.isSimple:
+        else:
             if dec < 0 or dec > 4000:
                 return None
             return self.memory[dec]
@@ -29,11 +32,11 @@ class Memory:
         if (dec_address == None or dec_value == None):
             return False
 
-        if self.isSimple:
-            if dec_address < 0 or dec_address > 4000:
+        if self.isExtended:
+            if dec_address < 0 or dec_address > 128000:
                 return False
         else:
-            if dec_address < 0 or dec_address > 128000:
+            if dec_address < 0 or dec_address > 4000:
                 return False
         
         self.memory[dec_address] = byte.upper()
@@ -60,16 +63,8 @@ class Memory:
             print(output)
 
 class Registery:
-    def __init__(self, isSimple):
-        if isSimple:
-            #5 registers 24 bits in length 
-            self.registers = {  
-                'A' : "000000",    #Accumulator
-                'X' : "000000",    #Index register
-                'L' : "000000",    #Linkage register (JSUB)
-                'PC': "000000",    #Program counter
-            }
-        else:
+    def __init__(self, isExtended):
+        if isExtended:
             #3 additional registers, 24 bit length + 1 register 48 bit length
             self.registers = {  
                 'A' : "000000",    #Accumulator
@@ -80,6 +75,15 @@ class Registery:
                 'S' : "000000",    #General working register
                 'T' : "000000",    #General working register
                 'F' : "000000"     #Floating-point accumulator (48 bits)
+            }
+           
+        else: 
+            #5 registers 24 bits in length 
+            self.registers = {  
+                'A' : "000000",    #Accumulator
+                'X' : "000000",    #Index register
+                'L' : "000000",    #Linkage register (JSUB)
+                'PC': "000000",    #Program counter
             }
 
     def get_register(self, reg):

@@ -90,13 +90,13 @@ class Interpreter:
     def execute_next_instruction(self):
         if(self.instruction_pointer) == -1:
             print('No file loaded please parse then start')
-            return
+            return False
 
 
         if self.instructions[self.instruction_pointer].name == "END":
             print("End of file")
             self.instruction_pointer = -1
-            return
+            return False
 
         #Move past directive
         while self.instructions[self.instruction_pointer].name in directives:
@@ -105,7 +105,7 @@ class Interpreter:
             if(self.instruction_pointer == len(self.instructions)):
                 print("End of file")
                 self.instruction_pointer = -1
-                return
+                return False
         
 
         instruction_line = self.instructions[self.instruction_pointer]
