@@ -118,7 +118,15 @@ class Interpreter:
         print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
-        self.token_utilizer(instruction_token, arguments, label, instruction_name, line_num)
+        target_instruction = self.__getinstruction__(arguments[0])
+
+        #Size of value at target
+        size_of_target = self.__determinesize__(target_instruction)
+
+        #Starting address of target data
+        address = self.__resolveaddress__(target_instruction.address, arguments)
+
+        self.token_utilizer(instruction_token, instruction_name, address, size_of_target, arguments, instruction_line.line_num)
 
         #Find next instruction and set PC to its address
         next_instruction_pointer = self.instruction_pointer + 1
@@ -168,109 +176,38 @@ class Interpreter:
 
         
 
-    def token_utilizer(self, instruction_token, arguments, label, name, line_num):
+    def token_utilizer(self, instruction_token, name, start_address, size_of_target, arguments, line_num):
 
         if (self.is_simple):
 
             if instruction_token == 1: #ADD
-
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-
-                address = instr_line.address
-                #If using indexed addressing mode
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
-                memory_string_int = hex2int(memory_string_hex)
-                value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex)
+                memory_string_int = hex2int(self.__get_data__(start_address,size_of_target))
+                value_of_A_int = hex2int(self.registers.get_register('A'))
                 value_of_A_int = memory_string_int + value_of_A_int
 
-                new_hex = int2hex(value_of_A_int, 16)
-                
-                if(value_of_A_int >= 0):
-                    new_hex = new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
-
+                new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
                 self.registers.set_register('A', new_hex)
 
         
             elif instruction_token == 2: #AND
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-                
                 int_val_of_A = hex2int(self.registers.get_register('A'))
-                int_val_of_mem = hex2int(memory_string_hex)
+                int_val_of_mem = hex2int(self.__get_data__(start_address,size_of_target))
                 int_val_of_A = int_val_of_A & int_val_of_mem
 
-                new_hex = int2hex(int_val_of_A,16)
-
-                if(int_val_of_A >= 0):
-                    new_hex = new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
-
+                new_hex = extend_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
                 self.registers.set_register('A', new_hex)
 
-                
-
-            elif instruction_token == 3: #COMP
-                instr_line = self.__getinstruction__(arguments[0])  
-                size_of_val = self.__determinesize__(instr_line)                
-                address = instr_line.address
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
+            elif instruction_token == 3: #COMP               
+                memory_string_hex = self.__get_data__(start_address,size_of_target)
                 self.condition_word = conditions[comp(self.registers.get_register('A'), memory_string_hex)]
                 
-
             elif instruction_token == 4: #DIV       
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-
-                #If using indexed addressing mode
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-                    
-                memory_string_int = hex2int(memory_string_hex)
-                value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex)
+                memory_string_int = hex2int(self.__get_data__(start_address,size_of_target))
+                value_of_A_int = hex2int(self.registers.get_register('A'))
                 value_of_A_int = int(value_of_A_int / memory_string_int)
 
-                new_hex = int2hex(value_of_A_int, 16)
-
-                if(value_of_A_int >= 0):
-                    new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+                new_hex = new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+        
 
                 self.registers.set_register('A', new_hex)
 
@@ -299,7 +236,6 @@ class Interpreter:
 
                     
                     self.instruction_pointer = new_index
-
 
             elif instruction_token == 7: #JGT
                 if self.condition_word == conditions[1]:
@@ -339,96 +275,33 @@ class Interpreter:
 
 
             elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
-
-                target_instr = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(target_instr)
-                address = target_instr.address
-                value = ""
-
-                #If using index based addressing
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                for i in range(size_of_val):
-                    value = value + self.memory_set.get_memory(address)
-                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
+                value = self.__get_data__(start_address, size_of_target)
                 self.registers.set_register(name[2], value)
 
             elif instruction_token == 11: #LDCH
-                target_instr = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(target_instr)
-                address = target_instr.address
-                
-                #If using index based addressing
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                value = self.memory_set.get_memory(address)
+                value = self.memory_set.get_memory(start_address)
                 self.registers.set_register('A', value)
                 
             elif instruction_token == 14: #MUL
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-
-                #If using index based addressing
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
-                memory_string_int = hex2int(memory_string_hex)
-                value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex)
+                memory_string_int = hex2int(self.__get_data__(start_address, size_of_target))
+                value_of_A_int = hex2int(self.registers.get_register('A'))
                 value_of_A_int = memory_string_int * value_of_A_int
-                new_hex = int2hex(value_of_A_int, 16)
-
-                if(value_of_A_int >= 0):
-                    new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
-
+                new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+               
                 self.registers.set_register('A', new_hex)
 
             elif instruction_token == 15: #OR
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
                 int_val_of_A = hex2int(self.registers.get_register('A'))
-                int_val_of_mem = hex2int(memory_string_hex)
+                int_val_of_mem = hex2int(self.__get_data__(start_address, size_of_target))
                 int_val_of_A = int_val_of_A | int_val_of_mem
-
-                new_hex = int2hex(int_val_of_A,16)
-
-                if(int_val_of_A >= 0):
-                    new_hex = new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+                new_hex = extend_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
 
                 self.registers.set_register('A', new_hex)
 
             elif instruction_token == 16: #RD
                 if (self.condition_word != "LT"):
                     return
-                instr_line = self.__getinstruction__(arguments[0])
-                address = instr_line.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(instr_line.address)
-                device_id = self.memory_set.get_memory(address)
+                device_id = self.memory_set.get_memory(start_address)
                 print("Device " + device_id + " INPUT:" )
                 print("Please enter in one byte of data (Hex) :")
                 self.userin = input().upper()
@@ -436,7 +309,6 @@ class Interpreter:
                 self.registers.set_register('A', self.userin)
 
             elif instruction_token == 17: #RSUB
-
                 #PC = L
                 self.registers.set_register('PC', self.registers.get_register('L'))
 
@@ -448,81 +320,28 @@ class Interpreter:
 
                 self.instruction_pointer = self.previous_pointer
 
-            elif instruction_token == 18: #STA
-                #M = A
-                target_instr = self.__getinstruction__(arguments[0])
-                address = target_instr.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-                value = self.registers.get_register('A')
+            elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21: #STA, STL, STX
+                value = self.registers.get_register(name[2])
+                address = start_address
                 for byte in bytesplit(value):
                     self.memory_set.set_memory(address, byte)
                     address = int2hex(hex2int(address,16) + 1).zfill(4)
+
             elif instruction_token == 19: #STCH
                 #M[RMB] = A[RMB]
-                target_instr = self.__getinstruction__(arguments[0])
-                address = target_instr.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
                 aRMB = self.registers.get_register('A')[-2] + self.registers.get_register('A')[-1]
-                self.memory_set.set_memory(address, aRMB)
-            elif instruction_token == 20: #STL
-                #M = L
-                target_instr = self.__getinstruction__(arguments[0])
-                address = target_instr.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-                value = self.registers.get_register('L')
-                for byte in bytesplit(value):
-                    self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
-            elif instruction_token == 21: #STX
-                #M = X
-                target_instr = self.__getinstruction__(arguments[0])
-                address = target_instr.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-                value = self.registers.get_register('X')
-                for byte in bytesplit(value):
-                    self.memory_set.set_memory(address, byte)
-                    address = int2hex(hex2int(address) + 1, 16).zfill(4)
-                pass
+                self.memory_set.set_memory(start_address, aRMB)
+
             elif instruction_token == 22: #SUB
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-
-                #If using index based addressing
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(address)
-
-                memory_string_hex = ""
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
-                memory_string_int = hex2int(memory_string_hex)
-
-                value_of_A_hex = self.registers.get_register('A')
-                value_of_A_int = hex2int(value_of_A_hex)
+                memory_string_int = hex2int( self.__get_data__(start_address, size_of_target))
+                value_of_A_int = hex2int(self.registers.get_register('A'))
                 value_of_A_int = value_of_A_int - memory_string_int
-                new_hex = int2hex(value_of_A_int, 16)
-
-                if(value_of_A_int >= 0):
-                    new_hex.zfill(size_of_val * 2)
-
-                else:
-                    new_hex = new_hex.rjust(size_of_val * 2, 'F')
+                new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
 
                 self.registers.set_register('A', new_hex)
-                    
+ 
             elif instruction_token == 23: #TD
-                instr_line = self.__getinstruction__(arguments[0])
-                address = instr_line.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(instr_line.address)
-                device_id = self.memory_set.get_memory(address)
-
+                device_id = self.memory_set.get_memory(start_address)
                 while(True):
                     print("Is device " + device_id + " ready? (y/n):")
                     decision = input().lower()
@@ -539,18 +358,9 @@ class Interpreter:
                         print("Invalid decision")
 
             elif instruction_token == 24: #TIX
-                instr_line = self.__getinstruction__(arguments[0])
-                size_of_val = self.__determinesize__(instr_line)
-                address = instr_line.address
-                memory_string_hex = ""
-
-                for i in range(size_of_val):
-                    memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-                    address = add_hex(address, "0001").zfill(4)
-
                 int_val_of_X = hex2int(self.registers.get_register('X'))
                 int_val_of_X += 1 
-                int_val_of_mem = hex2int(memory_string_hex)
+                int_val_of_mem = hex2int(self.__get_data__(start_address, size_of_target))
 
                 if (int_val_of_X < int_val_of_mem):
                     self.condition_word = conditions[0]
@@ -564,18 +374,12 @@ class Interpreter:
                     self.condition_word = conditions[2]
                     val_X = int2hex(int_val_of_X, 16)
                     self.registers.set_register('X', val_X)
-
-                
-                
                     
             elif instruction_token == 25: #WD
                 if (self.condition_word != "LT"):
                     return
-                instr_line = self.__getinstruction__(arguments[0])
-                address = instr_line.address
-                if arguments[1] == 'X':
-                    address = self.__getoffseaddress__(instr_line.address)
-                device_id = self.memory_set.get_memory(address)
+
+                device_id = self.memory_set.get_memory(start_address)
                 reg_A = self.registers.get_register("A")
                 print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
                 
@@ -586,8 +390,14 @@ class Interpreter:
                 return instr
         raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
-    def __resolveaddress__(self, instruction):
+    def __resolveaddress__(self, start_address, arguments):
         
+        #Indexed addressing
+        if(len(arguments) == 2 and arguments[1] == 'X'):
+            return self.__getoffseaddress__(start_address)
+
+        return start_address
+
 
     def __getoffseaddress__(self, start_address):
         #Returns an offset address when an instruction is using indexed addressing
@@ -625,12 +435,31 @@ class Interpreter:
             size = 3
 
         return size
+
+    #Gets values in memory given a range (size)
+    def __get_data__(self, start_address, size):
+        address = start_address
+        memory_string_hex = ""
+        for i in range(size):
+            memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
+            address = add_hex(address, "0001").zfill(4)
+        
+        return memory_string_hex
+        
                 
         
 #------Helper Methods------#
 
+def extend_value(value, hex_value, size):
+    new_hex = hex_value
+    if(value >= 0):
+        new_hex.zfill(size * 2)
 
-    
+    else:
+        new_hex = new_hex.rjust(size * 2, 'F')
+
+    return new_hex
+
 #converts from hex to 2's comp signed int
 def hex2int(hexstr): 
     try:
@@ -677,6 +506,7 @@ def comp(x, y):
         return 1
     elif x < y :
         return 0
+
 def bytesplit(hexString):
     data = hexString
     byteList = [data[i:i+2] for i in range(0, len(data), 2)]
