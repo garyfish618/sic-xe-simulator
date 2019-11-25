@@ -586,6 +586,9 @@ class Interpreter:
                 return instr
         raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
+    def __resolveaddress__(self, instruction):
+        
+
     def __getoffseaddress__(self, start_address):
         #Returns an offset address when an instruction is using indexed addressing
         value_of_X = self.registers.get_register('X')
