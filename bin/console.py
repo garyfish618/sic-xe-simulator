@@ -18,14 +18,14 @@ def get_input():
 class Console:
 
     def __init__(self):
-        self.isExtended = False # HARD CODE TODO: REMOVE IN ARCHITECTURE INTEGRATION
+        self.isExtended = False # Default SIC
         self.instruction_array = None
-        self.memory = Memory(True)
-        self.registery = Registery(True)        
+        self.memory = None
+        self.registery = None     
         self.interpreter = None
 
     def command_handler(self, command = "NA"):
-        commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit"]
+        commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit", "run"]
         args = command.split(' ')
 
         if args[0] in commands:
@@ -57,20 +57,48 @@ class Console:
                 if len(args) != 2:
                     print("Usage: parse [filename]")
                     return
-        
+                
+                while True:
+                    print("SIC (0) or SIC/XE (1)", end=' ')
+                    choice = input()
+
+                    if( choice == '0'):
+                        self.isExtended = False
+                        break
+                    
+                    elif( choice == '1'):
+                        self.isExtended = True
+                        break
+                    
+                    else:
+                        print("Invalid choice, try again")
+                
                 self.instruction_array = (read_file(args[1]))
                 if self.instruction_array is None:
                     print("Parsing unsuccesful")
+                    return
+
+                self.memory = Memory(self.isExtended)
+                self.registery = Registery(self.isExtended)                     
 
             elif args[0] == "viewmem":
                 if len(args) != 2:
                     print("Usage: viewmem [address]")
                     return
-        
+                
+                if self.memory == None:
+                    print("Please parse a file before viewing memory")
+                    return
+
                 address = args[1]
         
                 if self.isExtended and len(address) == SIZE_OF_BYTE * 2.5:
-                    print("Printing memory on extended address")
+                    memory = self.memory.get_memory(address)
+                    if(memory == None):
+                        print("Address out of bounds or invalid address")
+                    
+                    else:
+                        print(memory)
         
                 elif not self.isExtended and len(address) == SIZE_OF_BYTE * 2:
                     memory = self.memory.get_memory(address)
@@ -88,9 +116,13 @@ class Console:
                     print("Usage: viewreg [register]")
                     return
 
+                if self.registery == None:
+                    print("Please parse a file before viewing registery")
+                    return
+
                 reg_choice = args[1]
                 if self.isExtended and reg_choice in VALID_OPTIONS_EXTENDED:
-                    print("Printing register", reg_choice)
+                    print(self.registery.get_register(reg_choice))
                 
                 elif not self.isExtended and reg_choice in VALID_OPTIONS_SIMPLE:
                     print(self.registery.get_register(reg_choice))
@@ -103,6 +135,12 @@ class Console:
             elif args[0] == "next":
                 self.interpreter.execute_next_instruction()
             
+            elif args[0] == "run":
+                while True:
+                    done = self.interpreter.execute_next_instruction()
+                    if done != None:
+                        break
+                    
 
             elif args[0] == "changereg":
                 if len(args) != 3:
@@ -152,7 +190,7 @@ class Console:
             print("Invalid command")     
 
 def Main():
-    print("SIC/XE Simulator 1.0.0")
+    print("SIC/XE Simulator 1.0.1")
     print("Type \"help\" for more information")
 
     prompt = Console()
