@@ -6,17 +6,18 @@ conditions = ["LT", "GT", "EQ"]
 
 class Interpreter:
 
-    def __init__(self, instruction_array, memory, registers ):
+    def __init__(self, instruction_array, memory, registers, is_extended ):
         self.instructions = instruction_array
-        self.is_simple = True
+        self.is_extended = is_extended
         self.instruction_pointer = -1
         self.previous_pointer = -1
         self.memory_set = memory
         self.registers = registers
-        self.next_address = "0000"
+        self.next_address = "0000" if is_extended else "00000"
         self.condition_word = ""
 
     def assign_address(self):
+        address_length = 6 if self.is_extended else 4
 
         if self.instructions is None or len(self.instructions) == 0:
             print("Please load a file") 
@@ -26,6 +27,8 @@ class Interpreter:
 
         for instruction in self.instructions:
             if instruction.name == "START":
+                if (self.isExtended and len(instruction.args[0]) != 5) or (not self.isExtended and len(instruction.args[0] != 4)):
+                    raise Exception("Invalid address at line: " + instruction.line_num)
                 self.next_address = instruction.args[0]
                 continue
             if instruction.name == "END":
@@ -42,6 +45,7 @@ class Interpreter:
                     value = ""
                     stringname = ""
                     if instruction.args[0][0] =='C':
+                        #TODO Logic doesnt look right here, need to test
                         stringname = instruction.args[0].split("'")[1]
                         for ch in stringname:
                             value = value + ascii2hex(ch)
@@ -49,20 +53,20 @@ class Interpreter:
                         value = instruction.args[0].split("'")[1]
                     
                     if len(value) % 2 != 0:
-                        value = value.zfill(len(value) + 1)
+                        value = value.zfill(len(value) + 1) # ?? 
 
                     for i in range(0,len(value),2):
                         byte_to_set = value[i] + value[i+1]
                         self.memory_set.set_memory(self.next_address, byte_to_set)
-                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
+                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(address_length)
 
                 elif instruction.name == "RESW":
                     value = 3 *  int (instruction.args[0])
-                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(4)).zfill(4)
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(address_length)).zfill(address_length)
 
                 elif instruction.name == "RESB":
                     value = int (instruction.args[0])
-                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(4)).zfill(4)
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(address_length)).zfill(address_length)
 
                 elif instruction.name == "WORD":
                     value = int2hex(int (instruction.args[0]), 16)
@@ -74,7 +78,7 @@ class Interpreter:
 
                     for i in range(0,6,2):
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
-                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(4)
+                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(address_length)
 
             elif self.determine_instruction(instruction.name) == -1:
                 print("ERROR: Invalid instruction name on line " + str(instruction.line_num))
@@ -82,10 +86,11 @@ class Interpreter:
                 self.instruction_pointer = -1
                 return
 
-                # Convert to hex -> Strip 0x off front -> Capitalize all characters -> Fill with 0's so string is 4
-                # characters
+            elif instruction.args[0] == '+':
+                self.next_address == add_hex(self.next_address, "0004").zfill(address_length)
+
             else:
-                self.next_address = add_hex(self.next_address, "0003").zfill(4)
+                self.next_address = add_hex(self.next_address, "0003").zfill(address_length)
 
     def execute_next_instruction(self):
         if(self.instruction_pointer) == -1:

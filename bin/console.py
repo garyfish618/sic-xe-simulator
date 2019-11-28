@@ -129,7 +129,7 @@ class Console:
                     
 
             elif args[0] == "start":
-                self.interpreter = Interpreter(self.instruction_array, self.memory, self.registery)
+                self.interpreter = Interpreter(self.instruction_array, self.memory, self.registery, self.isExtended)
                 self.interpreter.assign_address()
 
             elif args[0] == "next":
