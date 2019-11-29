@@ -92,15 +92,7 @@ class Console:
 
                 address = args[1]
         
-                if self.isExtended and len(address) == SIZE_OF_BYTE * 2.5:
-                    memory = self.memory.get_memory(address)
-                    if(memory == None):
-                        print("Address out of bounds or invalid address")
-                    
-                    else:
-                        print(memory)
-        
-                elif not self.isExtended and len(address) == SIZE_OF_BYTE * 2:
+                if len(address) == SIZE_OF_BYTE * 2:
                     memory = self.memory.get_memory(address)
                     if(memory == None):
                         print("Address out of bounds or invalid address")

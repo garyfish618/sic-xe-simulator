@@ -30,7 +30,7 @@ def read_file(file):
                 line_num += 1
                 if line.isspace() or line[0] == '.':
                     continue
-                input_list = re.split('(,|\s+)|(C\'.*?\')',line) 
+                input_list = re.split(',|\s+',line) #TODO Needs fix
                 #Need to always put arguments in array regardless of one or two.
                 args_array = []
                 for i in range(2, len(input_list)): 

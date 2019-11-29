@@ -15,9 +15,9 @@ class Interpreter:
         self.registers = registers
         self.next_address = "0000" if is_extended else "00000"
         self.condition_word = ""
+        self.address_length = 4
 
     def assign_address(self):
-        address_length = 6 if self.is_extended else 4
 
         if self.instructions is None or len(self.instructions) == 0:
             print("Please load a file") 
@@ -27,8 +27,8 @@ class Interpreter:
 
         for instruction in self.instructions:
             if instruction.name == "START":
-                if (self.isExtended and len(instruction.args[0]) != 5) or (not self.isExtended and len(instruction.args[0] != 4)):
-                    raise Exception("Invalid address at line: " + instruction.line_num)
+                if (len(instruction.args[0]) != self.address_length):
+                    raise Exception("Invalid address at line: " + str(instruction.line_num))
                 self.next_address = instruction.args[0]
                 continue
             if instruction.name == "END":
@@ -42,31 +42,27 @@ class Interpreter:
             if instruction.name in directives:
 
                 if instruction.name == "BYTE":
-                    value = ""
                     stringname = ""
+                    value = []
                     if instruction.args[0][0] =='C':
                         #TODO Logic doesnt look right here, need to test
                         stringname = instruction.args[0].split("'")[1]
-                        for ch in stringname:
-                            value = value + ascii2hex(ch)
+                        for i in range(len(stringname)):
+                            value.append(ascii2hex(stringname[i]))
                     else:
-                        value = instruction.args[0].split("'")[1]
+                        value = instruction.args[0].split("X")[1].split("'")[1].split(' ')
                     
-                    if len(value) % 2 != 0:
-                        value = value.zfill(len(value) + 1) # ?? 
-
-                    for i in range(0,len(value),2):
-                        byte_to_set = value[i] + value[i+1]
-                        self.memory_set.set_memory(self.next_address, byte_to_set)
-                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(address_length)
+                    for item in value:
+                        self.memory_set.set_memory(self.next_address, item)
+                        self.next_address = add_hex(self.next_address, "1".zfill(self.address_length)).upper().zfill(self.address_length)
 
                 elif instruction.name == "RESW":
                     value = 3 *  int (instruction.args[0])
-                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(address_length)).zfill(address_length)
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(self.address_length)).zfill(self.address_length)
 
                 elif instruction.name == "RESB":
                     value = int (instruction.args[0])
-                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(address_length)).zfill(address_length)
+                    self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(self.address_length)).zfill(self.address_length)
 
                 elif instruction.name == "WORD":
                     value = int2hex(int (instruction.args[0]), 16)
@@ -78,7 +74,7 @@ class Interpreter:
 
                     for i in range(0,6,2):
                         self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
-                        self.next_address = add_hex(self.next_address, "0001").upper().zfill(address_length)
+                        self.next_address = add_hex(self.next_address, "1".zfill(self.address_length)).upper().zfill(self.address_length)
 
             elif self.determine_instruction(instruction.name) == -1:
                 print("ERROR: Invalid instruction name on line " + str(instruction.line_num))
@@ -86,17 +82,21 @@ class Interpreter:
                 self.instruction_pointer = -1
                 return
 
-            elif instruction.args[0] == '+':
-                self.next_address == add_hex(self.next_address, "0004").zfill(address_length)
+            elif instruction.name[0] == '+':
+                self.next_address = add_hex(self.next_address, "4".zfill(self.address_length)).zfill(self.address_length)
 
             else:
-                self.next_address = add_hex(self.next_address, "0003").zfill(address_length)
+                self.next_address = add_hex(self.next_address, "3".zfill(self.address_length)).zfill(self.address_length)
 
     def execute_next_instruction(self):
         if(self.instruction_pointer) == -1:
             print('No file loaded please parse then start')
             return False
 
+        if self.instruction_pointer == len(self.instructions):
+            print("End of file")
+            self.instruction_pointer = -1
+            return False
 
         if self.instructions[self.instruction_pointer].name == "END":
             print("End of file")
@@ -123,13 +123,24 @@ class Interpreter:
         print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
-        target_instruction = self.__getinstruction__(arguments[0])
 
-        #Size of value at target
-        size_of_target = self.__determinesize__(target_instruction)
+        if len(arguments) != 0 and arguments[0][0] != '#': #If not immediate
+            if(arguments[0][0] == '@'):
+                target_instruction = self.__getinstruction__(arguments[0][1:])
+
+            else:
+                target_instruction = self.__getinstruction__(arguments[0])
+
+             #Size of value at target
+            size_of_target = self.__determinesize__(target_instruction)
+
+        else:
+            target_instruction = None
+            size_of_target = 0
+       
 
         #Starting address of target data
-        address = self.__resolveaddress__(target_instruction.address, arguments)
+        address = self.__resolveaddress__(None if target_instruction is None else target_instruction.address, arguments)
 
         self.token_utilizer(instruction_token, instruction_name, address, size_of_target, arguments, instruction_line.line_num)
 
@@ -142,69 +153,77 @@ class Interpreter:
             self.registers.set_register('PC', self.instructions[next_instruction_pointer].address)
 
     def determine_instruction(self, instruction_name):
-        instruction_set = {}
-
-        if (self.is_simple):
-            instruction_set = {
-                "ADD": 1,
-                "AND":2,
-                "COMP":3,
-                "DIV":4,
-                "J":5,
-                "JEQ":6,
-                "JGT":7,
-                "JLT":8,
-                "JSUB":9,
-                "LDA":10,
-                "LDCH":11,
-                "LDL":12,
-                "LDX":13,
-                "MUL":14,
-                "OR":15,
-                "RD":16,
-                "RSUB":17,
-                "STA":18,
-                "STCH":19,
-                "STL":20,
-                "STX":21,
-                "SUB":22,
-                "TD":23,
-                "TIX":24,
-                "WD":25,
-                "ADDF":26,
-                "ADDR":27,
-                "CLEAR":28,
-                "COMMPF":29,
-                "COMPR":30,
-                "DIVF":31,
-                "DIVR":32,
-                "LDB":33,
-                "LDF":34,
-                "LDS":35,
-                "LDT":36,
-                "MULF":37,
-                "MULR":38,
-                "RMO":39,
-                "STB":40,
-                "STF":41,
-                "STS":42,
-                "STT":43,
-                "SUBF":44,
-                "SUBR":45,
-                "TIXR":46,
-                "END":47
-            }
-
+        if instruction_name[0] == '+':
+            instr = instruction_name[1:]
+        
         else:
-            instruction_set = {}
+            instr = instruction_name
 
-        return instruction_set.get(instruction_name, -1)  # Returns -1 if instruction was not found
+        instruction_set = {}
+        instruction_set = {
+            "ADD": 1,
+            "AND":2,
+            "COMP":3,
+            "DIV":4,
+            "J":5,
+            "JEQ":6,
+            "JGT":7,
+            "JLT":8,
+            "JSUB":9,
+            "LDA":10,
+            "LDCH":11,
+            "LDL":12,
+            "LDX":13,
+            "MUL":14,
+            "OR":15,
+            "RD":16,
+            "RSUB":17,
+            "STA":18,
+            "STCH":19,
+            "STL":20,
+            "STX":21,
+            "SUB":22,
+            "TD":23,
+            "TIX":24,
+            "WD":25,
+            "ADDF":26,
+            "ADDR":27,
+            "CLEAR":28,
+            "COMMPF":29,
+            "COMPR":30,
+            "DIVF":31,
+            "DIVR":32,
+            "LDB":33,
+            "LDF":34,
+            "LDS":35,
+            "LDT":36,
+            "MULF":37,
+            "MULR":38,
+            "RMO":39,
+            "STB":40,
+            "STF":41,
+            "STS":42,
+            "STT":43,
+            "SUBF":44,
+            "SUBR":45,
+            "TIXR":46,
+            "END":47
+        }
+
+        return instruction_set.get(instr, -1)  # Returns -1 if instruction was not found
 
         
 
     def token_utilizer(self, instruction_token, name, start_address, size_of_target, arguments, line_num):
+
+        if start_address == -1:
+            hex_data = arguments[0][1:].split("'")[1]
+
+        else:
+            hex_data = self.__get_data__(start_address, size_of_target)
+
         if instruction_token == 1: #ADD
-            memory_string_int = hex2int(self.__get_data__(start_address,size_of_target))
+            memory_string_int = hex2int(hex_data)
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = memory_string_int + value_of_A_int
 
@@ -214,18 +233,18 @@ class Interpreter:
     
         elif instruction_token == 2: #AND
             int_val_of_A = hex2int(self.registers.get_register('A'))
-            int_val_of_mem = hex2int(self.__get_data__(start_address,size_of_target))
+            int_val_of_mem = hex2int(hex_data)
             int_val_of_A = int_val_of_A & int_val_of_mem
 
             new_hex = extend_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
             self.registers.set_register('A', new_hex)
 
         elif instruction_token == 3: #COMP               
-            memory_string_hex = self.__get_data__(start_address,size_of_target)
+            memory_string_hex = hex_data
             self.condition_word = conditions[comp(self.registers.get_register('A'), memory_string_hex)]
             
         elif instruction_token == 4: #DIV       
-            memory_string_int = hex2int(self.__get_data__(start_address,size_of_target))
+            memory_string_int = hex2int(hex_data)
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = int(value_of_A_int / memory_string_int)
 
@@ -298,11 +317,12 @@ class Interpreter:
 
 
         elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
-            value = self.__get_data__(start_address, size_of_target)
-            self.registers.set_register(name[2], value)
+            value = hex_data
+            load_instructions = {10: 'A', 12: 'X', 13: 'L'}
+            self.registers.set_register(load_instructions.get(instruction_token), value)
 
         elif instruction_token == 11: #LDCH
-            value = self.memory_set.get_memory(start_address)
+            value = hex_data[0] + hex_data[1]
             self.registers.set_register('A', value)
             
         elif instruction_token == 14: #MUL
@@ -458,20 +478,23 @@ class Interpreter:
         raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
     def __resolveaddress__(self, start_address, arguments):
-        
         #Indexed addressing
         if(len(arguments) == 2 and arguments[1] == 'X'):
-            return self.__getoffseaddress__(start_address)
+            value_of_X = self.registers.get_register('X')
+            address = add_hex(value_of_X, start_address.zfill(6)).zfill(4)
+            return address
+
+        #Immediate Operand
+        if(len(arguments) != 0 and arguments[0][0] == '#'):
+            return -1 # Indicates no address - use immediate operand
+        
+        #Indirect Addressing
+        if(len(arguments) != 0 and arguments[0][0] == '@'):
+            instruction = self.__getinstruction__(arguments[0][1:])
+            address = self.memory_set.get_memory(instruction.address) + self.memory_set.get_memory(add_hex(instruction.address, "1".zfill(self.address_length)))
+            return address
 
         return start_address
-
-
-    def __getoffseaddress__(self, start_address):
-        #Returns an offset address when an instruction is using indexed addressing
-        value_of_X = self.registers.get_register('X')
-        address = add_hex(value_of_X, start_address.zfill(6)).zfill(4)
-        return address
-        
 
     def __getindex__(self, label):
         #Returns position of instruction in instruction array - useful for jump instructions
@@ -483,23 +506,13 @@ class Interpreter:
     def __determinesize__(self, instr):
         #Returns the amount of bytes a directive has allocated
         size = 0
-        if instr.name == directives[0]:
-            for i in range(int(instr.args[0])):
-                size += 3
-        
-        elif instr.name == directives[1]:
-            for i in range(int(instr.args[0])):
-                size += 1
-        
-        elif instr.name == directives[2]:
-            if instr.args[0][0] == 'C':
-               size = len(instr.args[0]) - 3
-            else:
-                size = 1
-            
 
-        elif instr.name == directives[3]:
+        if instr.name == directives[0] or instr.name == directives[3]:
             size = 3
+        
+        elif instr.name == directives[1] or instr.name == directives[2]:
+            size = 1
+        
 
         return size
 
@@ -509,7 +522,7 @@ class Interpreter:
         memory_string_hex = ""
         for i in range(size):
             memory_string_hex = memory_string_hex + self.memory_set.get_memory(address)
-            address = add_hex(address, "0001").zfill(4)
+            address = add_hex(address, "1".zfill(self.address_length)).zfill(4)
         
         return memory_string_hex
         

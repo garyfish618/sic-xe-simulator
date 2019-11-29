@@ -19,11 +19,12 @@ class Memory:
         if self.isExtended:
             if dec < 0 or dec > 128000:
                 return None
-
+            
         else:
             if dec < 0 or dec > 4000:
                 return None
-            return self.memory[dec]
+            
+        return self.memory[dec]
 
     def set_memory(self, address, byte):
         dec_address = hex2int(address, 16)
