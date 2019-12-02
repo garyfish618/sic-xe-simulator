@@ -1,4 +1,4 @@
-import parser
+import parser, floats
 from memory import Memory, Registery
 
 directives = ["RESW", "RESB", "BYTE", "WORD","START"] # And END, however END is a special case
@@ -65,16 +65,24 @@ class Interpreter:
                     self.next_address = add_hex(self.next_address, int2hex(value,16).zfill(self.address_length)).zfill(self.address_length)
 
                 elif instruction.name == "WORD":
-                    value = int2hex(int (instruction.args[0]), 16)
-                    if (int(instruction.args[0]) < 0):
-                        value = value.rjust(6, 'F')
-                            
-                    else:
-                        value = value.zfill(6)
 
-                    for i in range(0,6,2):
-                        self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
-                        self.next_address = add_hex(self.next_address, "1".zfill(self.address_length)).upper().zfill(self.address_length)
+                    if float(instruction.args[0]).is_integer():
+                        value = int2hex(int (instruction.args[0]), 16)
+                        if (int(instruction.args[0]) < 0):
+                            value = value.rjust(6, 'F')
+                                
+                        else:
+                            value = value.zfill(6)
+
+                        for i in range(0,6,2):
+                            self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
+                            self.next_address = add_hex(self.next_address, "1".zfill(self.address_length)).upper().zfill(self.address_length)
+                    else:
+                        value = floats.float_to_hex(float(instruction.args[0])) 
+
+                        for i in range(0,12,2):
+                            self.memory_set.set_memory(self.next_address, value[i] + value[i+1])
+                            self.next_address = add_hex(self.next_address, "1".zfill(self.address_length)).upper().zfill(self.address_length)
 
             elif self.determine_instruction(instruction.name) == -1:
                 print("ERROR: Invalid instruction name on line " + str(instruction.line_num))
@@ -124,7 +132,7 @@ class Interpreter:
 
         instruction_token = self.determine_instruction(instruction_name)
 
-        if len(arguments) != 0 and arguments[0][0] != '#': #If not immediate
+        if len(arguments) != 0 and arguments[0][0] != "X" and arguments[0][0] != "#": #If not immediate
             if(arguments[0][0] == '@'):
                 target_instruction = self.__getinstruction__(arguments[0][1:])
 
@@ -217,7 +225,17 @@ class Interpreter:
     def token_utilizer(self, instruction_token, name, start_address, size_of_target, arguments, line_num):
 
         if start_address == -1:
-            hex_data = arguments[0][1:].split("'")[1]
+            if arguments[0][0] == "#":
+                val = arguments[0][1:]
+                if float(val).is_integer():
+                    hex_data = hex(val).lstrip("0x")
+                    if len(hex_data) % 2 != 0:
+                        hex_data.zfill(len(hex_data) + 1)
+                else:
+                    hex_data = floats.float_to_hex(float(val))
+            else:
+                hex_data = arguments[0][1:].split("'")[1]
+
 
         else:
             hex_data = self.__get_data__(start_address, size_of_target)
@@ -316,9 +334,9 @@ class Interpreter:
                     return
 
 
-        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 ): #LDA, LDX, LDL Instructions
+        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 34): #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
             value = hex_data
-            load_instructions = {10: 'A', 12: 'X', 13: 'L'}
+            load_instructions = {10: 'A', 12: 'X', 13: 'L', 33:'B', 34: 'F', 35:'S', 36:'T'}
             self.registers.set_register(load_instructions.get(instruction_token), value)
 
         elif instruction_token == 11: #LDCH
@@ -439,14 +457,6 @@ class Interpreter:
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
-            pass
-        elif instruction_token == 33: #LDB
-            pass
-        elif instruction_token == 34: #LDF
-            pass
-        elif instruction_token == 35: #LDS
-            pass
-        elif instruction_token == 36: #LDT
             pass
         elif instruction_token == 37: #MULF
             pass

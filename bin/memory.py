@@ -1,3 +1,5 @@
+import os
+
 class Memory: 
     def __init__(self, isExtended):
         self.isExtended = isExtended
@@ -9,6 +11,20 @@ class Memory:
             self.memory = [None] * 128000    #size in bytes
             for i in range(128000):
                 self.memory[i] = "00"
+
+    def show_mem(self):
+        if os.path.isfile("mem_dump.txt"):
+            os.remove("mem_dump.txt")
+        mem_file = open("mem_dump.txt","w+")
+
+        for i in range(len(self.memory)):
+            if i%16 == 0 or i == 0:
+                address = hex(i).lstrip("0x").zfill(4).upper()
+                mem_file.write("\n" + address + "\t\t\t")
+            
+            mem_file.write(self.memory[i] + "\t")
+
+        mem_file.close()
 
     def get_memory(self, address):
         dec = hex2int(address,16)
@@ -68,14 +84,14 @@ class Registery:
         if isExtended:
             #3 additional registers, 24 bit length + 1 register 48 bit length
             self.registers = {  
-                'A' : "000000",    #Accumulator
-                'X' : "000000",    #Index register
-                'L' : "000000",    #Linkage register (JSUB)
-                'PC': "000000",    #Program counter
-                'B' : "000000",    #Base register; used for addressing
-                'S' : "000000",    #General working register
-                'T' : "000000",    #General working register
-                'F' : "000000"     #Floating-point accumulator (48 bits)
+                'A' : "000000",        #Accumulator
+                'X' : "000000",        #Index register
+                'L' : "000000",        #Linkage register (JSUB)
+                'PC': "000000",        #Program counter
+                'B' : "000000",        #Base register; used for addressing
+                'S' : "000000",        #General working register
+                'T' : "000000",        #General working register
+                'F' : "000000000000"   #Floating-point accumulator (48 bits)
             }
            
         else: 
@@ -99,7 +115,7 @@ class Registery:
             if (dec == None):
                 return False
 
-            if len(val) != 6:
+            if len(val) != 6 and reg != 'F':
                 val_length = 6 - len(val)
                 register = self.registers[reg]
                 new_val = ""
