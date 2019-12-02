@@ -1,26 +1,68 @@
 
 
 def float_to_bin(number):
-    rounded_num = round(number,20) #Max decimal places 
+    #Returns the absolute value of a float in binary representation of up to 36 bits
+
+    rounded_num = round(abs(number),20) #Max of 20 decimal places 
 
     whole, dec = str(rounded_num).split(".")
 
     places = len(dec)
     whole = int(whole)
-    dec = int(dec)
+    dec = float("." + dec)
 
-    result = bin(whole).lstrip("0b") + "."
+    if whole > 0:
+        result = bin(whole).lstrip("0b") + "."
 
-    for i in range(places):
-        whole, dec = str((whole_to_dec(dec)) * 2).split(".")
+    else:
+        result = "0" + "."
 
-        dec = int(dec)
+    if dec != 0:
+        length = len(result) - 1 # Number of bits already used - max of 36
+        dec_result = ""
+        dec_intermediate = dec
+        for i in range(36 - length):
+            dec_intermediate *= 2
+            if (dec_intermediate) > 1:
+                dec_result += "1"
+                dec_intermediate -= 1
+            
+            elif (dec_intermediate) < 1:
+                dec_result += "0"
 
-        result += whole
+            else:
+                #If equal to 1, rest of binary number will be 0's
+                dec_result += "1"
+                dec_result.ljust(36, '0')
+                break
+                
+        result += dec_result
+           
+    else:
+        result += "0"
 
     return result
 
-def bin_to_float(bin_number):
+def bin_to_sicfloat(number, bin_number):
+    whole_places = bin_number.find('.')
+    exp = bin(whole_places + 1024).lstrip("0b")
+
+    #Normalization
+    if whole_places > 1:
+        frac = (bin_number[:whole_places] + bin_number[whole_places + 1:])
+
+    if number >= 0:
+        #Sign bit = 0 if positive
+        result = "0" + exp + frac
+    
+    else:
+        #Sign bit = 1 if negative
+        result = "1" + exp + frac
+
+    return hex(int(result,2)).lstrip("0x")
+
+def hex_to_float(bin_number):
+    #Returns the float of a hex number
     hex_num = bin_number
 
     if int(hex_num[0],16) >= 8:
@@ -33,23 +75,23 @@ def bin_to_float(bin_number):
     exp = int(bin_number[1:12],2) - 1024
     fract = bin_number[12:48]
     
-    whole = int(fract[0:exp],2)
+    whole = str(int(fract[0:exp],2))
     dec = fract[exp:len(fract)]
 
 
     total = 0.0
     for i in range(len(dec)):
         if dec[i] == '1':
-            total += (1 * 2^(-i))
+            total += (1 * (2**(-(i+1))))
         
-    dec = str(total)
+    dec = str(total).split('0')[1]
 
     if(sign == 1):
         result = "-" + whole + dec
     else:   
         result = whole + dec
 
-    return float(result)
+    return round(float(result),2)
     
 def whole_to_dec(num):
     while num > 1:
@@ -57,5 +99,5 @@ def whole_to_dec(num):
     return num
 
 
-print(float_to_bin(5.75))
-print(bin_to_float("403B80000000"))
+print(hex_to_float(bin_to_sicfloat(3.2,float_to_bin(3.2))))
+
