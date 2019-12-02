@@ -123,7 +123,7 @@ class Interpreter:
         print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
-
+        
         if len(arguments) != 0 and arguments[0][0] != '#': #If not immediate
             if(arguments[0][0] == '@'):
                 target_instruction = self.__getinstruction__(arguments[0][1:])
@@ -132,12 +132,11 @@ class Interpreter:
                 target_instruction = self.__getinstruction__(arguments[0])
 
              #Size of value at target
+             
             size_of_target = self.__determinesize__(target_instruction)
-
         else:
             target_instruction = None
             size_of_target = 0
-       
 
         #Starting address of target data
         address = self.__resolveaddress__(None if target_instruction is None else target_instruction.address, arguments)
@@ -429,7 +428,10 @@ class Interpreter:
         elif instruction_token == 26: #ADDF
             pass
         elif instruction_token == 27: #ADDR
-            pass
+            reg_1_val = hex2int(self.registers.get_register(arguments[0]))
+            reg_2_val = hex2int(self.registers.get_register(arguments[1]))
+            reg_1_val = int2hex((reg_1_val + reg_2_val),16)
+            self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 28: #CLEAR
             pass
         elif instruction_token == 29: #COMPF
@@ -439,7 +441,10 @@ class Interpreter:
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
-            pass
+            reg_1_val = hex2int(self.registers.get_register(arguments[0]))
+            reg_2_val = hex2int(self.registers.get_register(arguments[1]))
+            reg_1_val = int2hex((reg_1_val / reg_2_val),16)
+            self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 33: #LDB
             pass
         elif instruction_token == 34: #LDF
@@ -451,9 +456,13 @@ class Interpreter:
         elif instruction_token == 37: #MULF
             pass
         elif instruction_token == 38: #MULR
-            pass
+            reg_1_val = hex2int(self.registers.get_register(arguments[0]))
+            reg_2_val = hex2int(self.registers.get_register(arguments[1]))
+            reg_1_val = int2hex((reg_1_val * reg_2_val),16)
+            self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 39: #RMO
-            pass
+            reg_val = hex2int(self.registers.get_register(arguments[1]))
+            self.registers.set_register(arguments[0],reg_val)
         elif instruction_token == 40: #STB
             pass
         elif instruction_token == 41: #STF
@@ -475,6 +484,8 @@ class Interpreter:
         for instr in self.instructions:
             if instr.label == label:
                 return instr
+            else:
+                return None
         raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
     def __resolveaddress__(self, start_address, arguments):
@@ -512,7 +523,6 @@ class Interpreter:
         
         elif instr.name == directives[1] or instr.name == directives[2]:
             size = 1
-        
 
         return size
 
