@@ -64,7 +64,6 @@ def bin_to_sicfloat(number, bin_number):
 def hex_to_float(bin_number):
     #Returns the float of a hex number
     hex_num = bin_number
-
     if int(hex_num[0],16) >= 8:
         sign = "1" #Negative
 
@@ -92,6 +91,9 @@ def hex_to_float(bin_number):
         result = whole + dec
 
     return round(float(result),2)
+
+def float_to_hex(number):
+    return bin_to_sicfloat(number,float_to_bin(number)).upper()
     
 def whole_to_dec(num):
     while num > 1:
