@@ -25,7 +25,7 @@ class Console:
         self.interpreter = None
 
     def command_handler(self, command = "NA"):
-        commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit", "run"]
+        commands = ["help", "credits", "parse", "viewmem", "viewreg", "start", "next", "changereg", "changemem", "stop", "exit", "run", "dumpmem"]
         args = command.split(' ')
 
         if args[0] in commands:
@@ -40,7 +40,9 @@ class Console:
                 "changereg\t\tAlters a given register\n" +
                 "changemem\t\tAlters a section of memory\n" + 
                 "stop\t\t\tStops the interpreter\n" +
-                "exit\t\t\tExits the simulator\n"
+                "exit\t\t\tExits the simulator\n" +
+                "run\t\t\tExecutes the entire assembly file" +
+                "dumpmem\t\t\tExports the current memory to a txt file"
                 )
             elif args[0] == "credits":
                 clear_console()
@@ -132,6 +134,13 @@ class Console:
                     done = self.interpreter.execute_next_instruction()
                     if done != None:
                         break
+            
+            elif args[0] == "dumpmem":
+                if self.memory == None:
+                    print("Please parse a file before viewing memory")
+                
+                else:    
+                    self.memory.show_mem()
                     
 
             elif args[0] == "changereg":
