@@ -44,9 +44,9 @@ class Interpreter:
                 if instruction.name == "BYTE":
                     stringname = ""
                     value = []
-                    if instruction.args[0][0] =='C':
+                    if instruction.args[0] == "C":
                         #TODO Logic doesnt look right here, need to test
-                        stringname = instruction.args[0].split("'")[1]
+                        stringname = instruction.args[1]
                         for i in range(len(stringname)):
                             value.append(ascii2hex(stringname[i]))
                     else:
@@ -131,20 +131,22 @@ class Interpreter:
         print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
-
-        if len(arguments) != 0 and arguments[0][0] != "X" and arguments[0][0] != "#": #If not immediate
-            if(arguments[0][0] == '@'):
-                target_instruction = self.__getinstruction__(arguments[0][1:])
-
-            else:
-                target_instruction = self.__getinstruction__(arguments[0])
-
-             #Size of value at target
-             
-            size_of_target = self.__determinesize__(target_instruction)
-        else:
-            target_instruction = None
+        if instruction_token == 27 or instruction_token == 30 or instruction_token == 32 or instruction_token == 38 or instruction_token == 39 or instruction_token == 45 or instruction_token == 46:
             size_of_target = 0
+            target_instruction = None
+        elif len(arguments) != 0 and arguments[0][0] != "X" and arguments[0][0] != "#": #If not immediate
+                if(arguments[0][0] == '@'):
+                    target_instruction = self.__getinstruction__(arguments[0][1:])
+
+                else:
+                    target_instruction = self.__getinstruction__(arguments[0])
+
+                #Size of value at target
+                
+                size_of_target = self.__determinesize__(target_instruction)
+        else:
+                target_instruction = None
+                size_of_target = 0
 
         #Starting address of target data
         address = self.__resolveaddress__(None if target_instruction is None else target_instruction.address, arguments)
@@ -335,7 +337,7 @@ class Interpreter:
 
         elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 34): #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
             value = hex_data
-            load_instructions = {10: 'A', 12: 'X', 13: 'L', 33:'B', 34: 'F', 35:'S', 36:'T'}
+            load_instructions = {10: 'A', 13: 'X', 12: 'L', 33:'B', 34: 'F', 35:'S', 36:'T'}
             self.registers.set_register(load_instructions.get(instruction_token), value)
 
         elif instruction_token == 11: #LDCH
@@ -468,7 +470,7 @@ class Interpreter:
             reg_1_val = int2hex((reg_1_val * reg_2_val),16)
             self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 39: #RMO
-            reg_val = hex2int(self.registers.get_register(arguments[1]))
+            reg_val = self.registers.get_register(arguments[1])
             self.registers.set_register(arguments[0],reg_val)
         elif instruction_token == 40: #STB
             pass
@@ -491,8 +493,6 @@ class Interpreter:
         for instr in self.instructions:
             if instr.label == label:
                 return instr
-            else:
-                return None
         raise Exception("ERROR: The label - '" + label + "' could not be resolved" )
 
     def __resolveaddress__(self, start_address, arguments):
