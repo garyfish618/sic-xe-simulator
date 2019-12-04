@@ -520,8 +520,8 @@ class Interpreter:
         elif instruction_token == 46: #TIXR
             int_val_of_X = hex2int(self.registers.get_register('X'))
             int_val_of_X += 1 
-            val_X = int2hex(int_val_of_X, 16)
-            self.registers.set_register('X', val_X)
+            new_hex = fill_value(int_val_of_X, int2hex(int_val_of_X, 16), 3)
+            self.registers.set_register('X', new_hex)
             self.condition_word = conditions[comp(self.registers.get_register('X'), self.registers.get_register(arguments[0]))]
 
 
