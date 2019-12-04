@@ -458,11 +458,13 @@ class Interpreter:
             reg_1_val = int2hex((reg_1_val + reg_2_val),16)
             self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 28: #CLEAR
-            pass
+            if arguments[0] == "F":
+                self.registers.set_register(arguments[0], "000000000000")
+            self.registers.set_register(arguments[0], "000000")
         elif instruction_token == 29: #COMPF
             pass
         elif instruction_token == 30: #COMPR
-            pass
+            self.condition_word = conditions[comp(self.registers.get_register(arguments[0]), self.registers.get_register(arguments[1]))]
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
@@ -485,9 +487,17 @@ class Interpreter:
         elif instruction_token == 44: #SUBF
             pass
         elif instruction_token == 45: #SUBR
-            pass
+           r2 = self.registers.get_register(arguments[1])
+           r1 = self.registers.get_register(arguments[0])
+           self.registers.set_register(self.registers.get_register(arguments[1]), sub_hex(r2, r1))
         elif instruction_token == 46: #TIXR
-            pass
+            int_val_of_X = hex2int(self.registers.get_register('X'))
+            int_val_of_X += 1 
+            val_X = int2hex(int_val_of_X, 16)
+            self.registers.set_register('X', val_X)
+            self.condition_word = conditions[comp(self.registers.get_register('X'), self.registers.get_register(arguments[0]))]
+
+
         
 
     def __getinstruction__(self, label):
