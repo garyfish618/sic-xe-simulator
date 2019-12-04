@@ -459,12 +459,15 @@ class Interpreter:
             self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 28: #CLEAR
             if arguments[0] == "F":
-                self.registers.set_register(arguments[0], "000000000000")
-            self.registers.set_register(arguments[0], "000000")
+                #Float register is 48 bits 
+                self.registers.set_register('F', "000000000000")
+            else:
+                self.registers.set_register(arguments[0], "000000")
         elif instruction_token == 29: #COMPF
             pass
         elif instruction_token == 30: #COMPR
             self.condition_word = conditions[comp(self.registers.get_register(arguments[0]), self.registers.get_register(arguments[1]))]
+            
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
