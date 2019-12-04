@@ -522,9 +522,17 @@ class Interpreter:
             self.registers.set_register('F',floats.float_to_hex(result))
 
         elif instruction_token == 45: #SUBR
-            pass
+           r2 = self.registers.get_register(arguments[1])
+           r1 = self.registers.get_register(arguments[0])
+           self.registers.set_register(arguments[1], sub_hex(r2, r1))
         elif instruction_token == 46: #TIXR
-            pass
+            int_val_of_X = hex2int(self.registers.get_register('X'))
+            int_val_of_X += 1 
+            new_hex = fill_value(int_val_of_X, int2hex(int_val_of_X, 16), 3)
+            self.registers.set_register('X', new_hex)
+            self.condition_word = conditions[comp(self.registers.get_register('X'), self.registers.get_register(arguments[0]))]
+
+
         
 
     def __getinstruction__(self, label):
