@@ -458,7 +458,11 @@ class Interpreter:
             reg_1_val = int2hex((reg_1_val + reg_2_val),16)
             self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 28: #CLEAR
-            pass
+            if arguments[0] == "F":
+                #Float register is 48 bits 
+                self.registers.set_register('F', "000000000000")
+            else:
+                self.registers.set_register(arguments[0], "000000")
         elif instruction_token == 29: #COMPF
             pass
         elif instruction_token == 30: #COMPR
