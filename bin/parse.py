@@ -45,7 +45,6 @@ def read_file(file):
                 #Need to always put arguments in array regardless of one or two.
                     for i in range(2, len(input_list)): 
                         args_array.append(input_list[i])
-                print(args_array)
                 instruction_obj = Instruction(input_list[0], input_list[1], args_array, None, line_num) #instantiate an instruction object
                 instruction_list.append(instruction_obj)
         return instruction_list
