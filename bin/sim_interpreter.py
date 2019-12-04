@@ -246,7 +246,7 @@ class Interpreter:
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = memory_string_int + value_of_A_int
 
-            new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+            new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
             self.registers.set_register('A', new_hex)
 
     
@@ -255,7 +255,7 @@ class Interpreter:
             int_val_of_mem = hex2int(hex_data)
             int_val_of_A = int_val_of_A & int_val_of_mem
 
-            new_hex = extend_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
+            new_hex = fill_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
             self.registers.set_register('A', new_hex)
 
         elif instruction_token == 3: #COMP               
@@ -267,7 +267,7 @@ class Interpreter:
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = int(value_of_A_int / memory_string_int)
 
-            new_hex = new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+            new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
     
 
             self.registers.set_register('A', new_hex)
@@ -348,7 +348,7 @@ class Interpreter:
             memory_string_int = hex2int(self.__get_data__(start_address, size_of_target))
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = memory_string_int * value_of_A_int
-            new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+            new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
             
             self.registers.set_register('A', new_hex)
 
@@ -356,7 +356,7 @@ class Interpreter:
             int_val_of_A = hex2int(self.registers.get_register('A'))
             int_val_of_mem = hex2int(self.__get_data__(start_address, size_of_target))
             int_val_of_A = int_val_of_A | int_val_of_mem
-            new_hex = extend_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
+            new_hex = fill_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
 
             self.registers.set_register('A', new_hex)
 
@@ -400,7 +400,7 @@ class Interpreter:
             memory_string_int = hex2int( self.__get_data__(start_address, size_of_target))
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = value_of_A_int - memory_string_int
-            new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+            new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
 
             self.registers.set_register('A', new_hex)
 
@@ -465,8 +465,9 @@ class Interpreter:
         elif instruction_token == 32: #DIVR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
-            reg_1_val = int2hex((reg_1_val / reg_2_val),16)
-            self.registers.set_register(arguments[0],reg_1_val)
+            reg_1_val = int(reg_1_val / reg_2_val)
+            new_hex = fill_value(reg_1_val, int2hex(reg_1_val, 16), 3)
+            self.registers.set_register(arguments[0],new_hex)
         elif instruction_token == 37: #MULF
             pass
         elif instruction_token == 38: #MULR
@@ -548,10 +549,10 @@ class Interpreter:
         
 #------Helper Methods------#
 
-def extend_value(value, hex_value, size):
+def fill_value(value, hex_value, size):
     new_hex = hex_value
     if(value >= 0):
-        new_hex.zfill(size * 2)
+        new_hex = new_hex.zfill(size * 2)
 
     else:
         new_hex = new_hex.rjust(size * 2, 'F')
