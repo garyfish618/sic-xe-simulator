@@ -492,7 +492,7 @@ class Interpreter:
         elif instruction_token == 45: #SUBR
            r2 = self.registers.get_register(arguments[1])
            r1 = self.registers.get_register(arguments[0])
-           self.registers.set_register(self.registers.get_register(arguments[1]), sub_hex(r2, r1))
+           self.registers.set_register(arguments[1], sub_hex(r2, r1))
         elif instruction_token == 46: #TIXR
             int_val_of_X = hex2int(self.registers.get_register('X'))
             int_val_of_X += 1 
