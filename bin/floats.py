@@ -33,7 +33,7 @@ def float_to_bin(number):
             else:
                 #If equal to 1, rest of binary number will be 0's
                 dec_result += "1"
-                dec_result.ljust(36, '0')
+                dec_result = dec_result.ljust(36, '0')
                 break
                 
         result += dec_result
@@ -48,8 +48,7 @@ def bin_to_sicfloat(number, bin_number):
     exp = bin(whole_places + 1024).lstrip("0b")
 
     #Normalization
-    if whole_places > 1:
-        frac = (bin_number[:whole_places] + bin_number[whole_places + 1:])
+    frac = (bin_number[:whole_places] + bin_number[whole_places + 1:])
 
     if number >= 0:
         #Sign bit = 0 if positive
@@ -99,7 +98,3 @@ def whole_to_dec(num):
     while num > 1:
         num /= 10
     return num
-
-
-print(hex_to_float(bin_to_sicfloat(3.2,float_to_bin(3.2))))
-

@@ -267,7 +267,7 @@ class Interpreter:
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = int(value_of_A_int / memory_string_int)
 
-            new_hex = new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
+            new_hex = extend_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
     
 
             self.registers.set_register('A', new_hex)
@@ -451,7 +451,17 @@ class Interpreter:
             print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
 
         elif instruction_token == 26: #ADDF
-            pass
+            float_in_F = Registery.get_register('F')
+            float_val = floats.hex_to_float(hex_data)
+
+            result = float_in_F + float_val
+
+            Registery.set_register('F',floats.float_to_hex(result))
+
+            
+
+
+
         elif instruction_token == 27: #ADDR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
