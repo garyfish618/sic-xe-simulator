@@ -389,7 +389,7 @@ class Interpreter:
             address = start_address
             for byte in bytesplit(value):
                 self.memory_set.set_memory(address, byte)
-                address = int2hex(hex2int(address) + 1).zfill(4)
+                address = int2hex(hex2int(address) + 1, 16).zfill(4)
 
         elif instruction_token == 19: #STCH
             #M[RMB] = A[RMB]
