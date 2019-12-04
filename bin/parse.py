@@ -32,7 +32,9 @@ def read_file(file):
                 line_num += 1
                 if line.isspace() or line[0] == '.':
                     continue
-                if "C'" in line:
+                if "X'" in line:
+                    input_list = re.split(",|\s+",line)
+                elif "C'" in line:
                     substring = line.split("'")[1]
                     input_list = re.split(",|\s+|'",line)
                     args_array.append(input_list[2])
@@ -43,8 +45,8 @@ def read_file(file):
                 #|C'.+?'
     
                 #Need to always put arguments in array regardless of one or two.
-                    for i in range(2, len(input_list)): 
-                        args_array.append(input_list[i])
+                for i in range(2, len(input_list)): 
+                    args_array.append(input_list[i])
                 instruction_obj = Instruction(input_list[0], input_list[1], args_array, None, line_num) #instantiate an instruction object
                 instruction_list.append(instruction_obj)
         return instruction_list

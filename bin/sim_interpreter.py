@@ -452,8 +452,9 @@ class Interpreter:
         elif instruction_token == 27: #ADDR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
-            reg_1_val = int2hex((reg_1_val + reg_2_val),16)
-            self.registers.set_register(arguments[0],reg_1_val)
+            reg_2_val = reg_1_val + reg_2_val
+            new_hex = fill_value(reg_2_val, int2hex(reg_2_val, 16), 3)
+            self.registers.set_register(arguments[1],new_hex)
         elif instruction_token == 28: #CLEAR
             pass
         elif instruction_token == 29: #COMPF
@@ -465,19 +466,20 @@ class Interpreter:
         elif instruction_token == 32: #DIVR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
-            reg_1_val = int(reg_1_val / reg_2_val)
-            new_hex = fill_value(reg_1_val, int2hex(reg_1_val, 16), 3)
-            self.registers.set_register(arguments[0],new_hex)
+            reg_2_val = int(reg_2_val / reg_1_val)
+            new_hex = fill_value(reg_2_val, int2hex(reg_2_val, 16), 3)
+            self.registers.set_register(arguments[1],new_hex)
         elif instruction_token == 37: #MULF
             pass
         elif instruction_token == 38: #MULR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
-            reg_1_val = int2hex((reg_1_val * reg_2_val),16)
-            self.registers.set_register(arguments[0],reg_1_val)
+            reg_2_val = reg_1_val * reg_2_val
+            new_hex = fill_value(reg_2_val, int2hex(reg_2_val, 16), 3)
+            self.registers.set_register(arguments[1],new_hex)
         elif instruction_token == 39: #RMO
-            reg_val = self.registers.get_register(arguments[1])
-            self.registers.set_register(arguments[0],reg_val)
+            reg_val = self.registers.get_register(arguments[0])
+            self.registers.set_register(arguments[1],reg_val)
         elif instruction_token == 40: #STB
             pass
         elif instruction_token == 41: #STF
