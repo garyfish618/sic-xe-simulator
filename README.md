@@ -1,5 +1,5 @@
 # SIC/XE SIMULATOR PROJECT
-This program simulates how a SIC/XE based system would run written in Python3. This included building memory, register, a parser, a console, and an interpreter. 
+This program simulates how a SIC/XE based system would run written in Python3. This included building memory, registers, a parser, a console, and an interpreter. 
 ## Getting Started
 Type `./simulator` to start the simulator.<br />
 You can type `help` to view list of commands.<br />
