@@ -19,4 +19,4 @@ Type in `exit` to exit the simulation.<br />
 **Kristian Bunda** - Memory/Register Design and Assembler Directives management<br />
 **Lauren DeLeon** - Parser Design and Documentation<br />
 **Gary Fishell** - Console and Interpreter Architecture Design<br />
-**SIC and SICXE Instruction implementation** - Collective effort<br />
+**SIC and SIC/XE Instruction implementation** - Collective effort<br />
