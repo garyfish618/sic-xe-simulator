@@ -462,7 +462,8 @@ class Interpreter:
         elif instruction_token == 29: #COMPF
             pass
         elif instruction_token == 30: #COMPR
-            pass
+            self.condition_word = conditions[comp(self.registers.get_register(arguments[0]), self.registers.get_register(arguments[1]))]
+            
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
