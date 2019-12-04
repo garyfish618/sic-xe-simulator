@@ -382,12 +382,14 @@ class Interpreter:
 
             self.instruction_pointer = self.previous_pointer
 
-        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21: #STA, STL, STX
+        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 or instruction_token == 40 or instruction_token == 42 or instruction_token == 43:
+            #STA, STL, STX, STB, STT, STT
+            #M = Register
             value = self.registers.get_register(name[2])
             address = start_address
             for byte in bytesplit(value):
                 self.memory_set.set_memory(address, byte)
-                address = int2hex(hex2int(address,16) + 1).zfill(4)
+                address = int2hex(hex2int(address) + 1).zfill(4)
 
         elif instruction_token == 19: #STCH
             #M[RMB] = A[RMB]
@@ -475,10 +477,6 @@ class Interpreter:
         elif instruction_token == 40: #STB
             pass
         elif instruction_token == 41: #STF
-            pass
-        elif instruction_token == 42: #STS
-            pass
-        elif instruction_token == 43: #STT
             pass
         elif instruction_token == 44: #SUBF
             pass
