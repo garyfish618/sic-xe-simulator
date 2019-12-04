@@ -228,12 +228,12 @@ class Interpreter:
         if start_address == -1:
             if arguments[0][0] == "#":
                 val = arguments[0][1:]
-                if float(val).is_integer():
-                    hex_data = hex(val).lstrip("0x")
-                    if len(hex_data) % 2 != 0:
-                        hex_data.zfill(len(hex_data) + 1)
-                else:
-                    hex_data = floats.float_to_hex(float(val))
+                #if float(val).is_integer():
+                    #hex_data = hex(val).lstrip("0x")
+                    #if len(hex_data) % 2 != 0:
+                        #hex_data.zfill(len(hex_data) + 1)
+                #else:
+                hex_data = floats.float_to_hex(float(val))
             else:
                 hex_data = arguments[0][1:].split("'")[1]
 
@@ -266,7 +266,6 @@ class Interpreter:
             memory_string_int = hex2int(hex_data)
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = int(value_of_A_int / memory_string_int)
-
             new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
     
 
@@ -335,7 +334,9 @@ class Interpreter:
                     return
 
 
-        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 34): #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
+        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 33\
+           or instruction_token == 34 or instruction_token == 35 or instruction_token == 36):
+            #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
             value = hex_data
             load_instructions = {10: 'A', 13: 'X', 12: 'L', 33:'B', 34: 'F', 35:'S', 36:'T'}
             self.registers.set_register(load_instructions.get(instruction_token), value)
@@ -382,8 +383,9 @@ class Interpreter:
 
             self.instruction_pointer = self.previous_pointer
 
-        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 or instruction_token == 40 or instruction_token == 42 or instruction_token == 43:
-            #STA, STL, STX, STB, STT, STT
+        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 \
+            or instruction_token == 40 or instruction_token == 41 or instruction_token == 42 or instruction_token == 43:
+            #STA, STL, STX, STB, STT, STT, STF
             #M = Register
             value = self.registers.get_register(name[2])
             address = start_address
@@ -448,7 +450,13 @@ class Interpreter:
             print("Device " + device_id + " OUTPUT:" + reg_A[-2:])
 
         elif instruction_token == 26: #ADDF
-            pass
+            float_in_F = floats.hex_to_float(self.registers.get_register('F'))
+            float_val = floats.hex_to_float(hex_data)
+
+            result = float_in_F + float_val
+
+            self.registers.set_register('F',floats.float_to_hex(result))
+
         elif instruction_token == 27: #ADDR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
@@ -456,13 +464,25 @@ class Interpreter:
             new_hex = fill_value(reg_2_val, int2hex(reg_2_val, 16), 3)
             self.registers.set_register(arguments[1],new_hex)
         elif instruction_token == 28: #CLEAR
-            pass
+            if arguments[0] == "F":
+                #Float register is 48 bits 
+                self.registers.set_register('F', "000000000000")
+            else:
+                self.registers.set_register(arguments[0], "000000")
         elif instruction_token == 29: #COMPF
             pass
         elif instruction_token == 30: #COMPR
-            pass
+            self.condition_word = conditions[comp(self.registers.get_register(arguments[0]), self.registers.get_register(arguments[1]))]
+            
         elif instruction_token == 31: #DIVF
-            pass
+            float_in_F = floats.hex_to_float(self.registers.get_register('F'))
+            float_val = floats.hex_to_float(hex_data)
+
+            result = float_in_F / float_val
+
+            self.registers.set_register('F',floats.float_to_hex(result))
+
+    
         elif instruction_token == 32: #DIVR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
@@ -470,7 +490,12 @@ class Interpreter:
             new_hex = fill_value(reg_2_val, int2hex(reg_2_val, 16), 3)
             self.registers.set_register(arguments[1],new_hex)
         elif instruction_token == 37: #MULF
-            pass
+            float_in_F = floats.hex_to_float(self.registers.get_register('F'))
+            float_val = floats.hex_to_float(hex_data)
+
+            result = float_in_F * float_val
+
+            self.registers.set_register('F',floats.float_to_hex(result))
         elif instruction_token == 38: #MULR
             reg_1_val = hex2int(self.registers.get_register(arguments[0]))
             reg_2_val = hex2int(self.registers.get_register(arguments[1]))
@@ -482,10 +507,14 @@ class Interpreter:
             self.registers.set_register(arguments[1],reg_val)
         elif instruction_token == 40: #STB
             pass
-        elif instruction_token == 41: #STF
-            pass
         elif instruction_token == 44: #SUBF
-            pass
+            float_in_F = floats.hex_to_float(self.registers.get_register('F'))
+            float_val = floats.hex_to_float(hex_data)
+
+            result = float_in_F - float_val
+
+            self.registers.set_register('F',floats.float_to_hex(result))
+
         elif instruction_token == 45: #SUBR
             pass
         elif instruction_token == 46: #TIXR
