@@ -382,8 +382,9 @@ class Interpreter:
 
             self.instruction_pointer = self.previous_pointer
 
-        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 or instruction_token == 40 or instruction_token == 42 or instruction_token == 43:
-            #STA, STL, STX, STB, STT, STT
+        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 \
+            or instruction_token == 40 or instruction_token == 41 or instruction_token == 42 or instruction_token == 43:
+            #STA, STL, STX, STB, STT, STT, STF
             #M = Register
             value = self.registers.get_register(name[2])
             address = start_address
@@ -475,8 +476,6 @@ class Interpreter:
             reg_val = self.registers.get_register(arguments[1])
             self.registers.set_register(arguments[0],reg_val)
         elif instruction_token == 40: #STB
-            pass
-        elif instruction_token == 41: #STF
             pass
         elif instruction_token == 44: #SUBF
             pass
