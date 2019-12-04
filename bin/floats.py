@@ -39,7 +39,7 @@ def float_to_bin(number):
         result += dec_result
            
     else:
-        result += "0"
+        result = result.ljust(36,'0')
 
     return result
 
@@ -82,12 +82,12 @@ def hex_to_float(bin_number):
         if dec[i] == '1':
             total += (1 * (2**(-(i+1))))
         
-    dec = str(total).split('0')[1]
+    dec = str(total).split('.')[1]
 
     if(sign == 1):
         result = "-" + whole + dec
     else:   
-        result = whole + dec
+        result = whole + "." + dec
 
     return round(float(result),2)
 
@@ -98,3 +98,5 @@ def whole_to_dec(num):
     while num > 1:
         num /= 10
     return num
+
+
