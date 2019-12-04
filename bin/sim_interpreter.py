@@ -228,16 +228,11 @@ class Interpreter:
         if start_address == -1:
             if arguments[0][0] == "#":
                 val = arguments[0][1:]
-                #if float(val).is_integer():
-                    #hex_data = hex(val).lstrip("0x")
-                    #if len(hex_data) % 2 != 0:
-                        #hex_data.zfill(len(hex_data) + 1)
-                #else:
                 if "." in val:
                     hex_data = floats.float_to_hex(float(val))
                 
                 else:
-                    hex_data = hex(int(val)).lstrip("0x").upper()
+                    hex_data = int2hex(int(val),24)
                     if len(hex_data) % 2 != 0:
                         hex_data.zfill(len(hex_data) + 1)
             else:
