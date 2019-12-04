@@ -233,7 +233,13 @@ class Interpreter:
                     #if len(hex_data) % 2 != 0:
                         #hex_data.zfill(len(hex_data) + 1)
                 #else:
-                hex_data = floats.float_to_hex(float(val))
+                if "." in val:
+                    hex_data = floats.float_to_hex(float(val))
+                
+                else:
+                    hex_data = hex(int(val)).lstrip("0x").upper()
+                    if len(hex_data) % 2 != 0:
+                        hex_data.zfill(len(hex_data) + 1)
             else:
                 hex_data = arguments[0][1:].split("'")[1]
 
