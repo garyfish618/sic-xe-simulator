@@ -131,7 +131,7 @@ class Interpreter:
         print("Executing instruction: " + instruction_line.name)
 
         instruction_token = self.determine_instruction(instruction_name)
-        if instruction_token == 27 or instruction_token == 30 or instruction_token == 32 or instruction_token == 38 or instruction_token == 39 or instruction_token == 45 or instruction_token == 46:
+        if instruction_token == 27 or instruction_token == 28 or instruction_token == 30 or instruction_token == 32 or instruction_token == 38 or instruction_token == 39 or instruction_token == 45 or instruction_token == 46:
             size_of_target = 0
             target_instruction = None
         elif len(arguments) != 0 and arguments[0][0] != "X" and arguments[0][0] != "#": #If not immediate
@@ -463,7 +463,10 @@ class Interpreter:
         elif instruction_token == 31: #DIVF
             pass
         elif instruction_token == 32: #DIVR
-            pass
+            reg_1_val = hex2int(self.registers.get_register(arguments[0]))
+            reg_2_val = hex2int(self.registers.get_register(arguments[1]))
+            reg_1_val = int2hex((reg_1_val / reg_2_val),16)
+            self.registers.set_register(arguments[0],reg_1_val)
         elif instruction_token == 37: #MULF
             pass
         elif instruction_token == 38: #MULR
