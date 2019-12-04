@@ -335,7 +335,9 @@ class Interpreter:
                     return
 
 
-        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 34): #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
+        elif (instruction_token == 10 or instruction_token == 12 or instruction_token == 13 or instruction_token == 33\
+           or instruction_token == 34 or instruction_token == 35 or instruction_token == 36):
+            #LDA, LDX, LDL, LDB, LDF, LDS, LDT Instructions
             value = hex_data
             load_instructions = {10: 'A', 13: 'X', 12: 'L', 33:'B', 34: 'F', 35:'S', 36:'T'}
             self.registers.set_register(load_instructions.get(instruction_token), value)
@@ -382,8 +384,9 @@ class Interpreter:
 
             self.instruction_pointer = self.previous_pointer
 
-        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 or instruction_token == 40 or instruction_token == 42 or instruction_token == 43:
-            #STA, STL, STX, STB, STT, STT
+        elif instruction_token == 18 or instruction_token == 20 or instruction_token == 21 \
+            or instruction_token == 40 or instruction_token == 41 or instruction_token == 42 or instruction_token == 43:
+            #STA, STL, STX, STB, STT, STT, STF
             #M = Register
             value = self.registers.get_register(name[2])
             address = start_address
@@ -478,8 +481,6 @@ class Interpreter:
             reg_val = self.registers.get_register(arguments[1])
             self.registers.set_register(arguments[0],reg_val)
         elif instruction_token == 40: #STB
-            pass
-        elif instruction_token == 41: #STF
             pass
         elif instruction_token == 44: #SUBF
             pass
