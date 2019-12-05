@@ -352,7 +352,7 @@ class Interpreter:
             self.registers.set_register('A', value)
             
         elif instruction_token == 14: #MUL
-            memory_string_int = hex2int(self.__get_data__(start_address, size_of_target))
+            memory_string_int = hex2int(hex_data)
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = memory_string_int * value_of_A_int
             new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
@@ -361,7 +361,7 @@ class Interpreter:
 
         elif instruction_token == 15: #OR
             int_val_of_A = hex2int(self.registers.get_register('A'))
-            int_val_of_mem = hex2int(self.__get_data__(start_address, size_of_target))
+            int_val_of_mem = hex2int(hex_data)
             int_val_of_A = int_val_of_A | int_val_of_mem
             new_hex = fill_value(int_val_of_A, int2hex(int_val_of_A, 16), size_of_target)
 
@@ -405,7 +405,7 @@ class Interpreter:
             self.memory_set.set_memory(start_address, aRMB)
 
         elif instruction_token == 22: #SUB
-            memory_string_int = hex2int( self.__get_data__(start_address, size_of_target))
+            memory_string_int = hex2int( hex_data)
             value_of_A_int = hex2int(self.registers.get_register('A'))
             value_of_A_int = value_of_A_int - memory_string_int
             new_hex = fill_value(value_of_A_int, int2hex(value_of_A_int, 16), size_of_target)
@@ -432,7 +432,7 @@ class Interpreter:
         elif instruction_token == 24: #TIX
             int_val_of_X = hex2int(self.registers.get_register('X'))
             int_val_of_X += 1 
-            int_val_of_mem = hex2int(self.__get_data__(start_address, size_of_target))
+            int_val_of_mem = hex2int(hex_data)
 
             if (int_val_of_X < int_val_of_mem):
                 self.condition_word = conditions[0]
